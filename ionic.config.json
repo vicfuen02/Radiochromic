@@ -1,0 +1,7 @@
+{
+  "name": "RadiochromicFilmScan",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
