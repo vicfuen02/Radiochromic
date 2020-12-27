@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ActionSheetController } from '@ionic/angular';
 import { Photo } from '../models/photo.interface';
 import { PhotoService } from '../services/photo.service';
 
@@ -10,7 +11,8 @@ import { PhotoService } from '../services/photo.service';
 export class Tab2Page {
   public photos: Photo[]=[];
   
-  constructor(private photoSvc: PhotoService) {}
+  constructor(private photoSvc: PhotoService, 
+              public actionSheetController: ActionSheetController) {}
 
   ngOnInit(){
     this.photoSvc.loadSaved().then( () => {
@@ -20,6 +22,28 @@ export class Tab2Page {
 
   public newPhoto(): void {
     this.photoSvc.addNewToGallery()
+  }
+
+  public async showActionSheet(photo: Photo, position: number) {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Photos',
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          this.photoSvc.deletePicture(photo, position);
+        }
+      }, {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          // Nothing to do, action sheet is automatically closed
+          }
+      }]
+    });
+    await actionSheet.present();
   }
 
 }
