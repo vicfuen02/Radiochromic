@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, PopoverController } from '@ionic/angular';
 import { Photo } from '../models/photo.interface';
 import { PhotoService } from '../services/photo.service';
+import { PopoverPage } from '../tab2-popover/tab2-popover';
 
 @Component({
   selector: 'app-tab2',
@@ -12,7 +13,8 @@ export class Tab2Page {
   public photos: Photo[]=[];
   
   constructor(private photoSvc: PhotoService, 
-              public actionSheetController: ActionSheetController) {}
+              public actionSheetController: ActionSheetController,
+              public popoverCtrl: PopoverController) {}
 
   ngOnInit(){
     this.photoSvc.loadSaved().then( () => {
@@ -44,6 +46,13 @@ export class Tab2Page {
       }]
     });
     await actionSheet.present();
+  }
+  async presentPopover(event: Event) {
+    const popover = await this.popoverCtrl.create({
+      component: PopoverPage,
+      event
+    });
+    await popover.present();
   }
 
 }
