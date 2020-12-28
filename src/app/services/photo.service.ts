@@ -113,6 +113,9 @@ export class PhotoService {
     });
   }
 
+  // getGallery () {
+    
+  // }
 
 
 }

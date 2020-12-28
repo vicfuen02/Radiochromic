@@ -30,6 +30,13 @@ export class Tab2Page {
     const actionSheet = await this.actionSheetController.create({
       header: 'Photos',
       buttons: [{
+        text: 'Scan',
+        role: 'destructive',
+        icon: 'scan',
+        handler: () => {
+          this.photoSvc.deletePicture(photo, position);
+        }
+      },{
         text: 'Delete',
         role: 'destructive',
         icon: 'trash',

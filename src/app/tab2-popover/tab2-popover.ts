@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 
 import { PopoverController } from '@ionic/angular';
+import { PhotoService } from '../services/photo.service';
 
 @Component({
   template: `
     <ion-list>
-      <ion-item button (click)="close('https://ionicframework.com/getting-started')">
+      <ion-item button (click)="getGallery()">
         <ion-label>Import from Gallery</ion-label>
       </ion-item>
 
@@ -24,4 +25,5 @@ export class PopoverPage {
     window.open(url, '_blank');
     this.popoverCtrl.dismiss();
   }
+
 }
