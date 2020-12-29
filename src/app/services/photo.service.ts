@@ -35,6 +35,27 @@ export class PhotoService {
     });
   }
 
+  public async GetfromLibrary() {
+    const capturedPhoto = await Camera.getPhoto({
+      quality: 100,
+      resultType: CameraResultType.Uri,
+      source: CameraSource.Photos
+    });
+
+    const saveImageFile = await this.savePicture(capturedPhoto);
+    this.photos.unshift(saveImageFile);
+
+    Storage.set( {
+      key: this.PHOTO_STORAGE,
+      value: JSON.stringify(this.photos.map( p => {
+        const photoCopy = {...p};
+        delete photoCopy.base64;
+        return photoCopy;
+      }))
+    });
+
+  }
+
   public async loadSaved(){
     const photos = await Storage.get({
       key: this.PHOTO_STORAGE
@@ -51,7 +72,6 @@ export class PhotoService {
 
 
   }
-
 
 
   public getPhotos(): Photo[] {
@@ -112,10 +132,6 @@ export class PhotoService {
       directory: FilesystemDirectory.Data
     });
   }
-
-  // getGallery () {
-    
-  // }
 
 
 }

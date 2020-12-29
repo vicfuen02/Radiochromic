@@ -6,7 +6,7 @@ import { PhotoService } from '../services/photo.service';
 @Component({
   template: `
     <ion-list>
-      <ion-item button (click)="getGallery()">
+      <ion-item button (click)="photoSvc.GetfromLibrary()">
         <ion-label>Import from Gallery</ion-label>
       </ion-item>
 
@@ -14,7 +14,8 @@ import { PhotoService } from '../services/photo.service';
   `
 })
 export class PopoverPage {
-  constructor(public popoverCtrl: PopoverController) {}
+  constructor(public popoverCtrl: PopoverController,
+              private photoSvc: PhotoService) {}
 
 //   support() {
 //     // this.app.getRootNavs()[0].push('/support');
