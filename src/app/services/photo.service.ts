@@ -18,11 +18,11 @@ export class PhotoService {
     this.platform = platform;
   }
 
-  public async addNewToGallery(){
+  public async addNewToGallery(source: CameraSource){
     
     const capturedPhoto = await Camera.getPhoto({
       resultType: CameraResultType.Uri,
-      source: CameraSource.Camera,
+      source,
       quality: 100
     });
 
@@ -39,26 +39,36 @@ export class PhotoService {
     });
   }
 
-  public async GetfromLibrary() {
-    const capturedPhoto = await Camera.getPhoto({
-      quality: 100,
-      resultType: CameraResultType.Uri,
-      source: CameraSource.Photos
-    });
-
-    const saveImageFile = await this.savePicture(capturedPhoto);
-    this.photos.unshift(saveImageFile);
-
-    Storage.set( {
-      key: this.PHOTO_STORAGE,
-      value: JSON.stringify(this.photos.map( p => {
-        const photoCopy = {...p};
-        delete photoCopy.base64;
-        return photoCopy;
-      }))
-    });
-
+  public async TakePhotoFromCamera() {
+    await this.addNewToGallery(CameraSource.Camera).then(()=> {},
+        err => {console.log('se cerro la camara')});
   }
+
+  public async TakePhotoFromGallery() {
+    await this.addNewToGallery(CameraSource.Photos).then(() => {},
+        err => {console.log('se cerro la galeria')});
+  }
+
+  // public async GetfromLibrary() {
+  //   const capturedPhoto = await Camera.getPhoto({
+  //     quality: 100,
+  //     resultType: CameraResultType.Uri,
+  //     source: CameraSource.Photos
+  //   });
+
+  //   const saveImageFile = await this.savePicture(capturedPhoto);
+  //   this.photos.unshift(saveImageFile);
+
+  //   Storage.set( {
+  //     key: this.PHOTO_STORAGE,
+  //     value: JSON.stringify(this.photos.map( p => {
+  //       const photoCopy = {...p};
+  //       delete photoCopy.base64;
+  //       return photoCopy;
+  //     }))
+  //   });
+
+  // }
 
   public async loadSaved() {
     // Retrieve cached photo array data
@@ -162,6 +172,28 @@ export class PhotoService {
       path: filename,
       directory: FilesystemDirectory.Data
     });
+  }
+
+
+  public async Scan(photo: Photo, position: number) {
+    // Remove this photo from the Photos reference data array
+    // this.photos.splice(position, 1);
+    await console.log('photo:', photo);
+  
+    // Update photos array cache by overwriting the existing photo array
+  //   Storage.set({
+  //     key: this.PHOTO_STORAGE,
+  //     value: JSON.stringify(this.photos)
+  //   });
+  
+  //   // delete photo file from filesystem
+  //   const filename = photo.filepath
+  //                       .substr(photo.filepath.lastIndexOf('/') + 1);
+  
+  //   await Filesystem.deleteFile({
+  //     path: filename,
+  //     directory: FilesystemDirectory.Data
+  //   });
   }
 
 

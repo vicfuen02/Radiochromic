@@ -23,7 +23,7 @@ export class Tab2Page {
   }
 
   public newPhoto(): void {
-    this.photoSvc.addNewToGallery()
+    this.photoSvc.TakePhotoFromCamera()
   }
 
   public async showActionSheet(photo: Photo, position: number) {
@@ -31,10 +31,9 @@ export class Tab2Page {
       header: 'Photos',
       buttons: [{
         text: 'Scan',
-        role: 'destructive',
         icon: 'scan',
         handler: () => {
-          this.photoSvc.deletePicture(photo, position);
+          this.photoSvc.Scan(photo, position);
         }
       },{
         text: 'Delete',
