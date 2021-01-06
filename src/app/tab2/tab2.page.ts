@@ -4,6 +4,8 @@ import { Photo } from '../models/photo.interface';
 import { PhotoService } from '../services/photo.service';
 import { PopoverPage } from '../tab2-popover/tab2-popover';
 
+import { ImageService } from '../services/image.service'
+
 @Component({
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
@@ -13,6 +15,7 @@ export class Tab2Page {
   public photos: Photo[]=[];
   
   constructor(private photoSvc: PhotoService, 
+              private imageService: ImageService,
               public actionSheetController: ActionSheetController,
               public popoverCtrl: PopoverController) {}
 
@@ -33,7 +36,7 @@ export class Tab2Page {
         text: 'Scan',
         icon: 'scan',
         handler: () => {
-          this.photoSvc.Scan(photo, position);
+          this.imageService.loadImage();
         }
       },{
         text: 'Delete',
