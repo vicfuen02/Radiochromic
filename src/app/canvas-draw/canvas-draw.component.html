@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      Scanner
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [forceOverscroll]="false">
+  
+  <!-- <ion-row>
+    <ion-col *ngFor="let color of colors" [style.background]="color" class="color-block" tappable
+      (click)="selectColor(color)"></ion-col>
+  </ion-row>
+  <ion-radio-group [(ngModel)]="selectedColor">
+    <ion-row>
+      <ion-col *ngFor="let color of colors" class="ion-text-center">
+        <ion-radio [value]="color"></ion-radio>
+      </ion-col>
+    </ion-row>
+  </ion-radio-group>
+ 
+  <ion-range min="2" max="20" color="primary" [(ngModel)]="lineWidth">
+    <ion-icon size="small" slot="start" name="brush"></ion-icon>
+    <ion-icon slot="end" name="brush"></ion-icon>
+  </ion-range> -->
+
+  <!-- <canvas #imageCanvas (mousedown)="startDrawing($event)" (touchstart)="startDrawing($event)"
+                      (mousemove)="moved($event)" (touchmove)="moved($event)"
+                      (mouseup)="endDrawing()" (touchend)="endDrawing()"></canvas> -->
+
+  <canvas #imageCanvas (touchstart)="startDrawing($event)"
+                       (touchend)="endDrawing()">
+  </canvas>
+
+  <ion-button expand="full" (click)="setBackground()">
+    <ion-icon slot="start" name="image"></ion-icon>
+    Set Background Image
+  </ion-button>
+
+</ion-content>
