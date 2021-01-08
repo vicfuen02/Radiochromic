@@ -13,8 +13,9 @@ export class ImageService {
         this.platform = platform;
       }
 
-      public async loadImage() {
+      public async loadImage(photo, position) {
         await console.log('message from image.service')
+        await console.log(`photo : ${photo.filepath}, position : ${position}`)
       }
 
 

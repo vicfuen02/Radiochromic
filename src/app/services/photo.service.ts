@@ -14,6 +14,8 @@ export class PhotoService {
   private PHOTO_STORAGE= 'photos';
   private platform: Platform;
 
+  public photoShared: Photo;
+
   constructor(platform: Platform) {
     this.platform = platform;
   }
@@ -49,26 +51,6 @@ export class PhotoService {
         err => {console.log('se cerro la galeria')});
   }
 
-  // public async GetfromLibrary() {
-  //   const capturedPhoto = await Camera.getPhoto({
-  //     quality: 100,
-  //     resultType: CameraResultType.Uri,
-  //     source: CameraSource.Photos
-  //   });
-
-  //   const saveImageFile = await this.savePicture(capturedPhoto);
-  //   this.photos.unshift(saveImageFile);
-
-  //   Storage.set( {
-  //     key: this.PHOTO_STORAGE,
-  //     value: JSON.stringify(this.photos.map( p => {
-  //       const photoCopy = {...p};
-  //       delete photoCopy.base64;
-  //       return photoCopy;
-  //     }))
-  //   });
-
-  // }
 
   public async loadSaved() {
     // Retrieve cached photo array data
@@ -175,26 +157,15 @@ export class PhotoService {
   }
 
 
-  public async Scan(photo: Photo, position: number) {
-    // Remove this photo from the Photos reference data array
-    // this.photos.splice(position, 1);
-    await console.log('photo:', photo);
-  
-    // Update photos array cache by overwriting the existing photo array
-  //   Storage.set({
-  //     key: this.PHOTO_STORAGE,
-  //     value: JSON.stringify(this.photos)
-  //   });
-  
-  //   // delete photo file from filesystem
-  //   const filename = photo.filepath
-  //                       .substr(photo.filepath.lastIndexOf('/') + 1);
-  
-  //   await Filesystem.deleteFile({
-  //     path: filename,
-  //     directory: FilesystemDirectory.Data
-  //   });
+  public async setSharedPhoto(photo: Photo) {
+    this.photoShared = photo
+    // await console.log('photo:', this.photoShared);
   }
+
+  public getSharedPhoto() {
+    return this.photoShared
+  }
+
 
 
 }

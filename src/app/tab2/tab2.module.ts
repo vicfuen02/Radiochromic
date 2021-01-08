@@ -8,6 +8,9 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
 
+import { CanvasDrawComponent } from '../canvas-draw/canvas-draw.component';
+
+
 @NgModule({
   imports: [
     IonicModule,
@@ -16,6 +19,7 @@ import { Tab2PageRoutingModule } from './tab2-routing.module';
     ExploreContainerComponentModule,
     Tab2PageRoutingModule
   ],
-  declarations: [Tab2Page]
+  providers: [CanvasDrawComponent],
+  declarations: [Tab2Page, CanvasDrawComponent]
 })
 export class Tab2PageModule {}

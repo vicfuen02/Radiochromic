@@ -1,6 +1,15 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Platform } from '@ionic/angular';
 
+import { PhotoService } from '../services/photo.service';
+import { ImageService } from '../services/image.service'
+import { Photo } from '../models/photo.interface';
+
+// import { Tab2Page } from '../tab2/tab2.page';
+
+
+
+
 @Component({
   selector: 'app-canvas-draw',
   templateUrl: './canvas-draw.component.html',
@@ -17,17 +26,68 @@ export class CanvasDrawComponent implements AfterViewInit {
   colors = [ '#9e2956', '#c2281d'];
  
   drawing = false;
-  lineWidth = 5;
+  // lineWidth = 5;
+
+  photoShared: Photo;
  
 
-  constructor(private plt: Platform) { }
+  constructor(private plt: Platform,
+              private photoSvc: PhotoService) { }
 
   ngAfterViewInit() {
     // Set the Canvas Element and its size
     this.canvasElement = this.canvas.nativeElement;
     this.canvasElement.width = this.plt.width() + '';
-    this.canvasElement.height = 200;
+    this.canvasElement.height = 300;
+
+ 
+    // this.setBackground();
+    // this.loadImage(this.photoLoad);
   }
+
+  ionViewDidEnter() {
+    // console.log('didenter')
+
+    // if (this.photoShared = {filepath: '',
+    //                         webviewPath: '',
+    //                         base64: ''}) {
+    //   console.log('empty')
+    // } else {
+    //   this.photoShared = this.photoSvc.getSharedPhoto()
+    //   console.log('photo:', this.photoShared.filepath);
+    // }
+
+  }
+  
+
+  setBackground() {
+    console.log('canvas')
+    
+    var background = new Image();
+    // background.src = photo.filepath;
+    this.photoShared = this.photoSvc.getSharedPhoto()
+    background.src = this.photoShared.webviewPath
+    // background.src = '../../assets/icon/favicon.png';
+    let ctx = this.canvasElement.getContext('2d');
+ 
+    background.onload = () => {
+      ctx.drawImage(background,0,0, this.canvasElement.width, this.canvasElement.height);   
+    }
+  }
+
+  GetData() {
+    // var background = new Image();
+    // this.photoShared = this.photoSvc.getSharedPhoto()
+    // background.src = this.photoShared.webviewPath
+    // var imgdata = ImageData(this.photoShared.webviewPath)
+
+  }
+
+
+
+
+
+
 
   startDrawing(ev) {
     // console.log('-----START:', ev)
@@ -88,16 +148,12 @@ export class CanvasDrawComponent implements AfterViewInit {
     this.drawing = false;
   }
 
+  // redirect(): void {
+  //   this.navCtrl.setDirection('./tabs/tab3');
 
-  setBackground() {
-    var background = new Image();
-    background.src = '../../assets/icon/favicon.png';
-    let ctx = this.canvasElement.getContext('2d');
- 
-    background.onload = () => {
-      ctx.drawImage(background,0,0, this.canvasElement.width, this.canvasElement.height);   
-    }
-  }
+  
+  // }
+
 
 
 
