@@ -1,48 +1,117 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
+    </ion-buttons>
     <ion-title>
       Scanner
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
+<canvas #imageCanvas (touchstart)="startDrawing($event)"
+                       (touchend)="endDrawing()">
+</canvas>
+
+<ion-button expand="full" (click)="setBackground()">
+  <ion-icon slot="start" name="image"></ion-icon>
+  Load selected image
+</ion-button>
+
+
 <ion-content [forceOverscroll]="false">
-  
-  <!-- <ion-row>
-    <ion-col *ngFor="let color of colors" [style.background]="color" class="color-block" tappable
-      (click)="selectColor(color)"></ion-col>
-  </ion-row>
-  <ion-radio-group [(ngModel)]="selectedColor">
+
+    
+  <ion-grid>
     <ion-row>
-      <ion-col *ngFor="let color of colors" class="ion-text-center">
-        <ion-radio [value]="color"></ion-radio>
+      <ion-col>
+        <ion-button expand="full" (click)="SetOrigincoord()">
+          <ion-icon  name="info"></ion-icon>
+          Set origin
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="full" (click)="ClearOrigincoord()">
+          <ion-icon name="info"></ion-icon>
+          Clear origin
+        </ion-button>
       </ion-col>
     </ion-row>
-  </ion-radio-group>
- 
-  <ion-range min="2" max="20" color="primary" [(ngModel)]="lineWidth">
-    <ion-icon size="small" slot="start" name="brush"></ion-icon>
-    <ion-icon slot="end" name="brush"></ion-icon>
-  </ion-range> -->
 
-  <!-- <canvas #imageCanvas (mousedown)="startDrawing($event)" (touchstart)="startDrawing($event)"
-                      (mousemove)="moved($event)" (touchmove)="moved($event)"
-                      (mouseup)="endDrawing()" (touchend)="endDrawing()"></canvas> -->
+    <ion-row>
+      <ion-col>
+        <ion-button expand="full" (click)="SetXcoord()">
+          <ion-icon slot="start" name="info"></ion-icon>
+          Set X coord
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="full" (click)="ClearXcoord()">
+          <ion-icon slot="start" name="info"></ion-icon>
+          Clear X coord
+        </ion-button>
+      </ion-col>
+    </ion-row>
 
-  <canvas #imageCanvas (touchstart)="startDrawing($event)"
-                       (touchend)="endDrawing()">
-  </canvas>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="full" (click)="SetYcoord()">
+          <ion-icon slot="start" name="info"></ion-icon>
+          Set Y coord
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="full" (click)="ClearYcoord()">
+          <ion-icon slot="start" name="info"></ion-icon>
+          Clear Y coord
+        </ion-button>
+      </ion-col>
+    </ion-row>
 
-  <ion-button expand="full" (click)="setBackground()">
-    <ion-icon slot="start" name="image"></ion-icon>
-    Load selected image
-  </ion-button>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="full" size="small" (click)="SetDatacoord()">
+          <ion-icon slot="start" name="info"></ion-icon>
+          Set Data coord
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="full" size="small" (click)="ClearDatacoord()">
+          <ion-icon slot="start" name="info"></ion-icon>
+          Clear Data coord
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-  <ion-button expand="full" (click)="setBackground()">
-    <ion-icon slot="start" name="info"></ion-icon>
-    Get data
-  </ion-button>
+  <div>
+    <strong>Pixel:</strong> {{this.saveX}}, {{this.saveY}}
+  </div>
 
-  <p>photo:</p>
+  <div>
+    <strong>RGBA:</strong> {{this.rgba}}
+  </div>
+  <p></p>
+  <div>
+    <strong>Origin:</strong> {{this.coords0}}
+  </div>
+  <p></p>
+  <div>
+    <strong>X Axis:</strong> {{this.coordsX}}
+  </div>
+  <p></p>
+  <div>
+    <strong>Y Axis:</strong> {{this.coordsY}}
+  </div>
+  <p></p>
+  <div>
+    <strong>Data:</strong> {{this.coordsData}}
+  </div>
+  <p></p>
+
+  <!-- <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content>
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll> -->
 
 </ion-content>
