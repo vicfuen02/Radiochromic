@@ -22,7 +22,7 @@ export class DosimetryService {
   LineLength(point0: [number, number], point1: [number, number]) {
 
     let len = Math.sqrt( (point1[0] - point0[0]) ** 2 + (point1[1] - point0[1]) **2 );
-    // console.log(len)
+    console.log('len:',len)
     return len
   }
 
@@ -30,7 +30,7 @@ export class DosimetryService {
 
     let distanceX = this.LineLength(origin,axisX); //px
     let distanceY = this.LineLength(origin,axisY); //px
-    console.log(distanceX, distanceY)
+    console.log('distanceX, distanceY:', distanceX, distanceY)
     return [origin, distanceX, distanceY]
   }
 
