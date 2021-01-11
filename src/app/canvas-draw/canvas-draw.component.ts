@@ -2,8 +2,9 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Platform } from '@ionic/angular';
 
 import { PhotoService } from '../services/photo.service';
-import { ImageService } from '../services/image.service'
+import { DosimetryService } from '../services/dosimetry.service'
 import { Photo } from '../models/photo.interface';
+
 
 
 @Component({
@@ -21,14 +22,20 @@ export class CanvasDrawComponent implements AfterViewInit {
   photoShared: Photo;
   imgWidth: number;
   imgHeight: number;
+
   rgba: number[];
-  coords0: number[]
-  coordsX: number[]
-  coordsY: number[]
-  coordsData: number[]
+  coords0: number[];
+  coordsX: number[];
+  coordsY: number[];
+  coordsData: number[];
+  RGBAData: number[];
+  Dosis: number;
+  distance;
+
 
   constructor(private plt: Platform,
-              private photoSvc: PhotoService) {  }
+              private photoSvc: PhotoService,
+              private dosimetryService: DosimetryService) {  }
   
               
   ngAfterViewInit() {
@@ -110,9 +117,17 @@ export class CanvasDrawComponent implements AfterViewInit {
 
     // console.log('colorIndices: ',colorIndices);
 
-    this.rgba = this.RGBAvalues(ctx,colorIndices,this.canvasElement.width,this.canvasElement.height)
-    return [this.saveX, this.saveY]
+    this.rgba = this.RGBAvalues(ctx,colorIndices,this.canvasElement.width,this.canvasElement.height);
+
+    this.saveX = Math.trunc(this.saveX);
+    this.saveY =Math.trunc(this.saveY);
+    // return [this.saveX, this.saveY]
   }
+
+  endDrawing(ev) {
+    // console.log('-----END:', ev)
+  }
+
 
 
   getColorIndicesForCoord(x, y, width) {
@@ -134,9 +149,9 @@ export class CanvasDrawComponent implements AfterViewInit {
     var r = imgdata.data[colorIndices[0]] / 255;
     var g = imgdata.data[colorIndices[1]] / 255;
     var b = imgdata.data[colorIndices[2]] / 255;
-    var a = imgdata.data[colorIndices[3]] / 255;
-    var rgba = [+r.toFixed(4),+g.toFixed(4),+b.toFixed(4),+a.toFixed(4)];
-    console.log('r:',r,'g:',g,'b:',b,'a:',a);
+    // var a = imgdata.data[colorIndices[3]] / 255;
+    var rgba = [+r.toFixed(4),+g.toFixed(4),+b.toFixed(4)];
+    console.log('r:',r,'g:',g,'b:',b);
     return rgba
   }
 
@@ -154,28 +169,49 @@ export class CanvasDrawComponent implements AfterViewInit {
   }
 
   SetDatacoord() {
-    this.coordsData = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
+    // this.coordsData = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
+    this.coordsData.push(Math.trunc(this.saveX), Math.trunc(this.saveY));
+    
+    this.RGBAData = this.rgba;
+    console.log(this.coordsData)
+    // return this.coordsData
   }
-
-  // Clear Data
-  ClearOrigincoord() {
-    this.coords0 = [];
-  }
-
-  ClearXcoord() {
-    this.coordsX = [];
-  }
-
-  ClearYcoord() {
-    this.coordsY = [];
-  }
-
   ClearDatacoord() {
     this.coordsData = [];
   }
 
-  endDrawing(ev) {
-    // console.log('-----END:', ev)
+
+
+
+  DosimetryCalculus() {
+    //Dosis
+    // this.Results = this.dosimetryService.RacionalCalibracion(this.RGBAData[0])
+
+    //Distancia entre dos puntos
+    let CoordSist = this.dosimetryService.CoordinateSistem(this.coords0,this.coordsX,this.coordsY);
+    this.distance = +this.dosimetryService.Distances(CoordSist[0],CoordSist[1],CoordSist[2],[this.coordsData[0],this.coordsData[1]],[this.coordsData[2],this.coordsData[3]]).toFixed(2)
+    // console.log(distance)
+
   }
+  
 
 }
+
+
+
+
+  // Clear Data
+  // ClearOrigincoord() {
+  //   this.coords0 = [];
+  // }
+
+  // ClearXcoord() {
+  //   this.coordsX = [];
+  // }
+
+  // ClearYcoord() {
+  //   this.coordsY = [];
+  // }
+
+  
+

@@ -13,6 +13,7 @@
                        (touchend)="endDrawing()">
 </canvas>
 
+
 <ion-button expand="full" (click)="setBackground()">
   <ion-icon slot="start" name="image"></ion-icon>
   Load selected image
@@ -25,46 +26,43 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        <ion-button expand="full" (click)="SetOrigincoord()">
+        <ion-button expand="full" size="small" (click)="SetOrigincoord()">
           <ion-icon  name="info"></ion-icon>
           Set origin
         </ion-button>
       </ion-col>
       <ion-col>
-        <ion-button expand="full" (click)="ClearOrigincoord()">
-          <ion-icon name="info"></ion-icon>
-          Clear origin
-        </ion-button>
+        <div>
+          <strong>Origin:</strong> {{this.coords0}}
+        </div>
       </ion-col>
     </ion-row>
 
     <ion-row>
       <ion-col>
-        <ion-button expand="full" (click)="SetXcoord()">
+        <ion-button expand="full" size="small" (click)="SetXcoord()">
           <ion-icon slot="start" name="info"></ion-icon>
           Set X coord
         </ion-button>
       </ion-col>
       <ion-col>
-        <ion-button expand="full" (click)="ClearXcoord()">
-          <ion-icon slot="start" name="info"></ion-icon>
-          Clear X coord
-        </ion-button>
+        <div>
+          <strong>X Axis:</strong> {{this.coordsX}}
+        </div>
       </ion-col>
     </ion-row>
 
     <ion-row>
       <ion-col>
-        <ion-button expand="full" (click)="SetYcoord()">
+        <ion-button expand="full" size="small" (click)="SetYcoord()">
           <ion-icon slot="start" name="info"></ion-icon>
           Set Y coord
         </ion-button>
       </ion-col>
       <ion-col>
-        <ion-button expand="full" (click)="ClearYcoord()">
-          <ion-icon slot="start" name="info"></ion-icon>
-          Clear Y coord
-        </ion-button>
+        <div>
+          <strong>Y Axis:</strong> {{coordsY}}
+        </div>
       </ion-col>
     </ion-row>
 
@@ -76,42 +74,139 @@
         </ion-button>
       </ion-col>
       <ion-col>
-        <ion-button expand="full" size="small" (click)="ClearDatacoord()">
+        <ion-button expand="full" size="small" (click)="SetDatacoord()">
           <ion-icon slot="start" name="info"></ion-icon>
           Clear Data coord
         </ion-button>
       </ion-col>
+      
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <ion-button expand="full" (click)="DosimetryCalculus()">
+          <ion-icon slot="start" name="info"></ion-icon>
+          Calculate
+        </ion-button>
+      </ion-col>
     </ion-row>
   </ion-grid>
+
+  
 
   <div>
     <strong>Pixel:</strong> {{this.saveX}}, {{this.saveY}}
   </div>
 
   <div>
-    <strong>RGBA:</strong> {{this.rgba}}
+    <strong>RGB:</strong> {{this.rgba}}
   </div>
   <p></p>
   <div>
-    <strong>Origin:</strong> {{this.coords0}}
+    <strong>Distance: </strong> {{distance}}
   </div>
   <p></p>
-  <div>
-    <strong>X Axis:</strong> {{this.coordsX}}
-  </div>
-  <p></p>
-  <div>
-    <strong>Y Axis:</strong> {{this.coordsY}}
-  </div>
-  <p></p>
-  <div>
-    <strong>Data:</strong> {{this.coordsData}}
-  </div>
-  <p></p>
-
-  <!-- <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
-    <ion-infinite-scroll-content>
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll> -->
 
 </ion-content>
+
+
+<!-- 
+<ion-grid>
+  <ion-row>
+    <ion-col>
+      <ion-button expand="full" size="small" (click)="SetOrigincoord()">
+        <ion-icon  name="info"></ion-icon>
+        Set origin
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="full" size="small" (click)="ClearOrigincoord()">
+        <ion-icon name="info"></ion-icon>
+        Clear origin
+      </ion-button>
+    </ion-col>
+  </ion-row>
+
+  <ion-row>
+    <ion-col>
+      <ion-button expand="full" size="small" (click)="SetXcoord()">
+        <ion-icon slot="start" name="info"></ion-icon>
+        Set X coord
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="full" size="small" (click)="ClearXcoord()">
+        <ion-icon slot="start" name="info"></ion-icon>
+        Clear X coord
+      </ion-button>
+    </ion-col>
+  </ion-row>
+
+  <ion-row>
+    <ion-col>
+      <ion-button expand="full" size="small" (click)="SetYcoord()">
+        <ion-icon slot="start" name="info"></ion-icon>
+        Set Y coord
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="full" size="small" (click)="ClearYcoord()">
+        <ion-icon slot="start" name="info"></ion-icon>
+        Clear Y coord
+      </ion-button>
+    </ion-col>
+  </ion-row>
+
+  <ion-row>
+    <ion-col>
+      <ion-button expand="full" size="small" (click)="SetDatacoord()">
+        <ion-icon slot="start" name="info"></ion-icon>
+        Set Data coord
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="full" size="small" (click)="ClearDatacoord()">
+        <ion-icon slot="start" name="info"></ion-icon>
+        Clear Data coord
+      </ion-button>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+
+<ion-button expand="full" size="small" (click)="DosimetryCalculus()">
+  <ion-icon slot="start" name="info"></ion-icon>
+  Calculate
+</ion-button>
+
+<div>
+  <strong>Pixel:</strong> {{this.saveX}}, {{this.saveY}}
+</div>
+
+<div>
+  <strong>RGBA:</strong> {{this.rgba}}
+</div>
+<p></p>
+<div>
+  <strong>Origin:</strong> {{this.coords0}}
+</div>
+<p></p>
+<div>
+  <strong>X Axis:</strong> {{this.coordsX}}
+</div>
+<p></p>
+<div>
+  <strong>Y Axis:</strong> {{coordsY}}
+</div>
+<p></p>
+<div>
+  <strong>Data:</strong>
+    <div>Coords: {{this.coordsData}}</div>
+    <div>RGBA:{{this.RGBAData}}</div>
+  
+</div>
+<p></p>
+<div>
+  <strong>Results: </strong> {{Dosis}}
+</div>
+<p></p>
+ -->

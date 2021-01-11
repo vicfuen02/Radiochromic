@@ -5,10 +5,6 @@ import { PhotoService } from '../services/photo.service';
 import { PopoverPage } from '../tab2-popover/tab2-popover';
 import { Router } from '@angular/router';
 
-import { ImageService } from '../services/image.service'
-
-import { CanvasDrawComponent } from '../canvas-draw/canvas-draw.component';
-
 
 @Component({
   selector: 'app-tab2',
@@ -20,8 +16,6 @@ export class Tab2Page {
   
   constructor(private photoSvc: PhotoService, 
 
-              private imageService: ImageService,
-              private canvasDraw: CanvasDrawComponent,
 
               public actionSheetController: ActionSheetController,
               private router: Router,
@@ -44,6 +38,7 @@ export class Tab2Page {
         text: 'Scan',
         icon: 'scan',
         handler: () => {
+          console.log(photo)
           this.photoSvc.setSharedPhoto(photo);
           this.router.navigate(['/tabs/tab3']);
           // this.canvasDraw.loadImage(photo, position)
