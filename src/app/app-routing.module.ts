@@ -5,11 +5,11 @@ const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
+  },  {
+    path: 'new-calibration',
+    loadChildren: () => import('./new-calibration/new-calibration.module').then( m => m.NewCalibrationPageModule)
   },
-  {
-    path: 'tab4',
-    loadChildren: () => import('./tab4/tab4.module').then( m => m.Tab4PageModule)
-  }
+
 ];
 @NgModule({
   imports: [

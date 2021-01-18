@@ -1,0 +1,95 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab3"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Dosimetry
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-grid>
+    <ion-row>
+
+      <ion-col>
+        <ion-item routerLink="/tabs/tab4/newcalibration">
+          <ion-button >
+            New Calibration
+          </ion-button>
+        </ion-item>
+      </ion-col>
+
+      <ion-col>
+        <ion-item>
+          <ion-button (click)="LoadCalibration()">
+            Load calibration
+          </ion-button>
+        </ion-item>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+   
+  <ion-list>
+    <ion-item>
+      <ion-label>Choose calibration</ion-label>
+        <ion-select interface="popover" placeholder="Select Calibration" [(ngModel)]="SelectedCalibration">
+          <ion-select-option *ngFor="let exportedcalibration of ExportedCalibrations" [value]="exportedcalibration">{{exportedcalibration.name}}</ion-select-option>
+        </ion-select>
+    </ion-item>
+  </ion-list>
+  
+
+  <ion-grid>
+    <ion-row>
+
+      <ion-col>
+        <ion-button (click)="SetZero()">
+          Set Zero
+        </ion-button>
+      </ion-col>
+
+      <ion-col>
+        <ion-button (click)="ClearZero()">
+          Clear Zero
+        </ion-button>
+      </ion-col>
+
+      <ion-col>
+        <ion-button (click)="CalculateDosis()">
+          Calculate
+        </ion-button>
+      </ion-col>
+      
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <div>
+          <strong>Zero points:</strong> {{this.ZeroLength}}
+        </div>
+      </ion-col>
+
+      <ion-col>
+        <div>
+          <strong>Dosis:</strong> {{this.PixelDosis}}
+        </div>
+      </ion-col>
+    </ion-row>
+
+  </ion-grid>
+
+  
+
+  
+
+
+  <app-canvas-draw></app-canvas-draw>
+
+
+
+  
+ 
+</ion-content>

@@ -1,6 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Scanner
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
 
 <ion-content [fullscreen]="true">
 
+  <ion-item routerLink="/tabs/tab4">
+    <ion-button>
+      Dosimetry
+    </ion-button>
+  </ion-item>
+  <p></p>
+
   <app-canvas-draw></app-canvas-draw>
+
+  
  
 </ion-content>

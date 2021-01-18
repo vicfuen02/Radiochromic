@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
+import { Calibration } from '../models/calibration.interface';
 
 
 @Injectable({
@@ -8,16 +9,72 @@ import { Platform } from '@ionic/angular';
 export class DosimetryService {
 
   private platform: Platform;
-  Dosis: number;
+  Dosis: number; // borrar
+
+  SavedCalibration: Calibration;
+  saveXY: number[];
+  saveRGB: number[];
 
   constructor(platform: Platform) {
     this.platform = platform;
   }
 
-  // public async loadImage(photo, position) {
-  //   await console.log('message from image.service')
-  //   await console.log(`photo : ${photo.filepath}, position : ${position}`)
-  // }
+  AddSavedCalibration() {
+    return this.SavedCalibration
+  }
+
+
+  //////////////////// DOSIS CALCULUS ////////////////////////
+
+  DosisCalculus(SavedCalibration: Calibration, saveRGB: number[]) {
+
+    // a_color = SavedCalibration.color[0]
+    // b_color = SavedCalibration.color[1]
+    // c_color = SavedCalibration.color[2]
+
+    if (SavedCalibration.formula == 'Rational') {
+
+      console.log('rational')
+
+      let Dosis_channel = [( SavedCalibration.red[1] / (saveRGB[0] - SavedCalibration.red[0]) ) + SavedCalibration.red[2],
+                          ( SavedCalibration.green[1] / (saveRGB[1] - SavedCalibration.green[0]) ) + SavedCalibration.green[2],
+                          ( SavedCalibration.blue[1] / (saveRGB[2] - SavedCalibration.blue[0]) ) + SavedCalibration.blue[2]
+                        ];
+      this.Dosis = (Dosis_channel[0] + Dosis_channel[1] + Dosis_channel[2]) / 3;
+      console.log('Dosis per channel:',Dosis_channel, 
+                  'Mean Dosis:', this.Dosis)
+
+    } else if (SavedCalibration.formula == 'Optical Density') {
+
+      console.log('optical')
+      let OD = - [Math.log10(this.saveRGB[0]), Math.log10(this.saveRGB[1]), Math.log10(this.saveRGB[2])]
+
+      let Dosis_channel = [( SavedCalibration.red[1] - SavedCalibration.red[2]*OD[0] ) / ( OD[0] - SavedCalibration.red[0] ),
+                          ( SavedCalibration.green[1] - SavedCalibration.green[2]*OD[1] ) / ( OD[1] - SavedCalibration.green[0] ),
+                          ( SavedCalibration.blue[1] - SavedCalibration.blue[2]*OD[2] ) / ( OD[2] - SavedCalibration.blue[0] )
+                        ];
+      this.Dosis = (Dosis_channel[0] + Dosis_channel[1] + Dosis_channel[2]) / 3;
+      console.log('Dosis per channel:',Dosis_channel, 
+                  'Mean Dosis:', this.Dosis)
+
+
+
+    } else if (SavedCalibration.formula == 'Net Optical Density') {
+      
+      console.log('net optical')
+
+    } else {
+      console.log('ninguna formula')
+    }
+
+    return this.Dosis
+
+  }
+
+
+  
+
+  ///////////////////// DISTANCES //////////////////////////
 
   LineLength(point0: [number, number], point1: [number, number]) {
 
@@ -28,90 +85,25 @@ export class DosimetryService {
 
   CoordinateSistem(origin, axisX, axisY) {
 
-    let distanceX = this.LineLength(origin,axisX); //px
-    let distanceY = this.LineLength(origin,axisY); //px
+    let cmX= 1; //cm
+    let cmY = 2; //cm
+
+    let distanceX = cmX / this.LineLength(origin,axisX); // cm/px
+    let distanceY = cmY / this.LineLength(origin,axisY); // cm/px
     console.log('distanceX, distanceY:', distanceX, distanceY)
     return [origin, distanceX, distanceY]
   }
 
-  Distances(origin, distanceX, distanceY, data1: [number,number], data2: [number,number]) {
+  Distances(distanceX, distanceY, data1: [number,number], data2: [number,number]) {
 
-    let cmX= 1; //cm
-    let cmY = 2; //cm
+    let r = Math.sqrt( ( (data1[0] - data2[0]) * distanceX ) **2 + ( (data1[1] - data2[1]) * distanceY ) **2 );
 
-    let r1 = Math.sqrt( ( (data1[0] - origin[0]) * (cmX/distanceX) ) **2 + ( (data1[1] - origin[1]) * (cmY/distanceY) ) **2 );
-    let r2 = Math.sqrt( ( (data2[0] - origin[0]) * (cmX/distanceX) ) **2 + ( (data2[1] - origin[1]) * (cmY/distanceY) ) **2 );
-    console.log('r1:',r1,'r2:',r2)
-    let r = Math.abs(r2-r1);
     console.log('r:',r)
+
     return r
   }
 
-
-  RacionalCalibracion(PV) {
-
-    const ar = -0.006;
-    const br = 1.4562;
-    const cr = -2.4830;
-
-    const ag = -0.0555;
-    const bg = 2.2749;
-    const cg = -3.8405;
-
-    const ab = 0.0062;
-    const bb = 1.2622;
-    const cb = -7.9521;
-
-    let Dr = cr + br / (PV - ar);
-    let Dg = cg + bg / (PV - ag);
-    let Db = cb + bb / (PV - ab);
-
-    this.Dosis = (Dr + Db + Dg) / 3
-
-    console.log(this.Dosis)
-    return this.Dosis
-
-
-  }
-
-
-
-
-
-
-
-
 }
-
-
-
-// import * as sharp from 'sharp';
-
-// import { Image } from 'image-js';
-// // import * as Image from 'image-js'
-
-
-//       public async loadImage(photo, position) {
-//         await console.log('message from image.service')
-
-//         await console.log(`photo : ${photo.filepath}, position : ${position}`)
-
-//         // await sharp('atomo.png')
-//         //             .extractChannel('green')
-//         //             .toColourspace('b-w')
-//         //             .toFile('green.jpg');
-
-//         // Image.load('atomo.png').then((image) => {
-//         //     console.log('Width',image.width);
-//         //     console.log('Height', image.height);
-//         //     console.log('colorModel', image.colorModel);
-//         //     console.log('components', image.components);
-//         //     console.log('alpha', image.alpha);
-//         //     console.log('channels', image.channels);
-//         //     console.log('bitDepth', image.bitDepth);
-//         //     });
-
-//       }
 
 
 

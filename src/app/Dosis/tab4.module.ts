@@ -8,6 +8,9 @@ import { Tab4PageRoutingModule } from './tab4-routing.module';
 
 import { Tab4Page } from './tab4.page';
 
+import { CanvasDrawComponent } from '../canvas-draw/canvas-draw.component';
+
+
 @NgModule({
   imports: [
     CommonModule,
@@ -17,6 +20,6 @@ import { Tab4Page } from './tab4.page';
     Tab4PageRoutingModule,
     RouterModule.forChild([{ path: '', component: Tab4Page }]),
   ],
-  declarations: [Tab4Page]
+  declarations: [Tab4Page, CanvasDrawComponent]
 })
 export class Tab4PageModule {}

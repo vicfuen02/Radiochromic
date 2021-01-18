@@ -158,7 +158,7 @@ export class PhotoService {
 
 
   public async setSharedPhoto(photo: Photo) {
-    this.photoShared = photo
+    this.photoShared = await photo
     // await console.log('photo:', this.photoShared);
   }
 

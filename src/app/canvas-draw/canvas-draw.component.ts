@@ -12,12 +12,15 @@ import { Photo } from '../models/photo.interface';
   templateUrl: './canvas-draw.component.html',
   styleUrls: ['./canvas-draw.component.scss'],
 })
-export class CanvasDrawComponent implements AfterViewInit {
+export class CanvasDrawComponent {
 
   @ViewChild('imageCanvas', { static: false }) canvas: any;
   canvasElement: any;
   saveX: number;
   saveY: number;
+
+  background = new Image();
+  ctx:any;
 
   photoShared: Photo;
   imgWidth: number;
@@ -38,47 +41,63 @@ export class CanvasDrawComponent implements AfterViewInit {
               private dosimetryService: DosimetryService) {  }
   
               
-  ngAfterViewInit() {
-    // Set the Canvas Element
-    this.canvasElement = this.canvas.nativeElement;
+  // ngAfterViewInit() {
+  //   // Set the Canvas Element
+  //   // this.canvasElement = this.canvas.nativeElement;
+
+    
+  // }
+
+
+  async setBackground() {
+    try {
+      this.canvasElement = this.canvas.nativeElement;
+
+      this.background = new Image()
+      this.photoShared = await this.photoSvc.getSharedPhoto()
+      
+      this.background.src = this.photoShared.webviewPath
+      this.ctx = this.canvasElement.getContext('2d');
+      
+      // this.background.src = await '../../assets/icon/favicon.png';
+
+      // background.addEventListener('load', () => {
+      //   // once the image is loaded:
+      //   this.imgWidth = background.naturalWidth;
+      //   this.imgHeight = background.naturalHeight;
+      //   const imgRatio = this.imgWidth / this.imgHeight;
+      //   console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
+      //   this.canvasElement.width = this.plt.width() + '';
+      //   this.canvasElement.height = this.canvasElement.width / imgRatio;
+      //   console.log('CanvasW:', this.canvasElement.width, 'canvasH:', this.canvasElement.height);
+      //   ctx.drawImage(background,0,0, this.canvasElement.width, this.canvasElement.height);
+      // },false)
+
+      this.imgWidth = this.background.naturalWidth;
+      this.imgHeight = this.background.naturalHeight;
+      const imgRatio = this.imgWidth / this.imgHeight;
+
+      console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
+
+      this.canvasElement.width = this.plt.width() + '';
+      this.canvasElement.height = this.canvasElement.width / imgRatio;
+      console.log('CanvasW:', this.canvasElement.width, 'canvasH:', this.canvasElement.height);
+
+      this.ctx.drawImage(this.background,0,0, this.canvasElement.width, this.canvasElement.height);
+      // console.log('ctx:',this.ctx)
+      
+      // clear stored data
+      this.ClearAllData()
+
+    } catch (e) {
+      console.log('no photo selected')
+    }
+
   }
 
 
-  setBackground() {
+  ClearAllData() {
 
-    var background = new Image();
-    this.photoShared = this.photoSvc.getSharedPhoto()
-
-    background.src = this.photoShared.webviewPath
-
-    let ctx = this.canvasElement.getContext('2d');
-    // background.src = '../../assets/icon/favicon.png';
-
-    // background.addEventListener('load', () => {
-    //   // once the image is loaded:
-    //   this.imgWidth = background.naturalWidth;
-    //   this.imgHeight = background.naturalHeight;
-    //   const imgRatio = this.imgWidth / this.imgHeight;
-    //   console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
-    //   this.canvasElement.width = this.plt.width() + '';
-    //   this.canvasElement.height = this.canvasElement.width / imgRatio;
-    //   console.log('CanvasW:', this.canvasElement.width, 'canvasH:', this.canvasElement.height);
-    //   ctx.drawImage(background,0,0, this.canvasElement.width, this.canvasElement.height);
-    // },false)
-
-    this.imgWidth = background.naturalWidth;
-    this.imgHeight = background.naturalHeight;
-    const imgRatio = this.imgWidth / this.imgHeight;
-
-    console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
-
-    this.canvasElement.width = this.plt.width() + '';
-    this.canvasElement.height = this.canvasElement.width / imgRatio;
-    console.log('CanvasW:', this.canvasElement.width, 'canvasH:', this.canvasElement.height);
-
-    ctx.drawImage(background,0,0, this.canvasElement.width, this.canvasElement.height);
-
-    // clear stored data
     this.rgba = [];
     this.coords0 = [];
     this.coordsX = [];
@@ -89,13 +108,13 @@ export class CanvasDrawComponent implements AfterViewInit {
 
   }
 
-
   startDrawing(ev) {
     // console.log('-----START:', ev)
 
     var canvasPosition = this.canvasElement.getBoundingClientRect();
-    let ctx = this.canvasElement.getContext('2d'); 
- 
+    let otherctx = this.canvasElement.getContext('2d'); 
+    console.log('ev:',ev)
+    console.log('ctx:', this.ctx)
     // console.log('position:', canvasPosition)
 
     // we get the point where we click
@@ -104,30 +123,35 @@ export class CanvasDrawComponent implements AfterViewInit {
     let pageY = ev.pageY? ev.pageY : ev.touches[0].pageY;
     this.saveX = pageX - canvasPosition.x;
     this.saveY = pageY - canvasPosition.y;
-    console.log('click:', `X: ${this.saveX}, Y:${this.saveY}` )
+
+    console.log('click:', `X: ${this.saveX}, Y:${this.saveY}`)
 
     // draw a rectangule where click
     const w=10;
     const h= 10;
-    ctx.fillRect(this.saveX-w/2, this.saveY-h/2, w,h);
-    ctx.clearRect(this.saveX-0.5*w/2, this.saveY-0.5*h/2, w*0.5,h*0.5);
+    otherctx.fillRect(this.saveX-w/2, this.saveY-h/2, w,h);
+    otherctx.clearRect(this.saveX-0.5*w/2, this.saveY-0.5*h/2, w*0.5,h*0.5);
 
     // Valores RGBA del pixel
     var colorIndices = this.getColorIndicesForCoord(this.saveX, this.saveY, this.canvasElement.width);
 
     // console.log('colorIndices: ',colorIndices);
 
-    this.rgba = this.RGBAvalues(ctx,colorIndices,this.canvasElement.width,this.canvasElement.height);
+    this.rgba = this.RGBAvalues(this.ctx,colorIndices,this.canvasElement.width,this.canvasElement.height);
 
     this.saveX = Math.trunc(this.saveX);
     this.saveY =Math.trunc(this.saveY);
+
+    this.dosimetryService.saveXY = [this.saveX, this.saveY];
+    this.dosimetryService.saveRGB = this.rgba;
+
     // return [this.saveX, this.saveY]
   }
+
 
   endDrawing(ev) {
     // console.log('-----END:', ev)
   }
-
 
 
   getColorIndicesForCoord(x, y, width) {
@@ -138,7 +162,7 @@ export class CanvasDrawComponent implements AfterViewInit {
   RGBAvalues(context,colorIndices,width,height) {
 
     var imgdata = context.getImageData(0, 0, width, height);
-    // console.log(imgdata)
+    console.log(imgdata)
 
     colorIndices[0] = Math.trunc(colorIndices[0])
     colorIndices[1] = Math.trunc(colorIndices[1])
@@ -152,9 +176,14 @@ export class CanvasDrawComponent implements AfterViewInit {
     // var a = imgdata.data[colorIndices[3]] / 255;
     var rgba = [+r.toFixed(4),+g.toFixed(4),+b.toFixed(4)];
     console.log('r:',r,'g:',g,'b:',b);
+
     return rgba
   }
 
+
+
+
+  // SERVICIO PARA EL RESTO DE PAGINAS (?)
   // Save Data
   SetOrigincoord() {
     this.coords0 = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
@@ -178,18 +207,18 @@ export class CanvasDrawComponent implements AfterViewInit {
   }
   ClearDatacoord() {
     this.coordsData = [];
+    console.log(this.coordsData)
   }
 
 
 
-
-  DosimetryCalculus() {
+  DistanceCalculus() {
     //Dosis
     // this.Results = this.dosimetryService.RacionalCalibracion(this.RGBAData[0])
 
     //Distancia entre dos puntos
     let CoordSist = this.dosimetryService.CoordinateSistem(this.coords0,this.coordsX,this.coordsY);
-    this.distance = +this.dosimetryService.Distances(CoordSist[0],CoordSist[1],CoordSist[2],[this.coordsData[0],this.coordsData[1]],[this.coordsData[2],this.coordsData[3]]).toFixed(2)
+    this.distance = +this.dosimetryService.Distances(CoordSist[1],CoordSist[2],[this.coordsData[0],this.coordsData[1]],[this.coordsData[2],this.coordsData[3]]).toFixed(2)
     // console.log(distance)
 
   }

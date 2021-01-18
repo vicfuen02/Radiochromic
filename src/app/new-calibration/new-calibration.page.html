@@ -1,0 +1,181 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab4"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      New Calibration
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-list lines="full" class="ion-no-margin">
+
+    <ion-item>
+      <ion-label position="floating">Name</ion-label>
+      <ion-input placeholder="Inster calibration name" type="text" [(ngModel)]="newCalibration.name"></ion-input>
+    </ion-item>
+
+    <ion-list>
+      <!-- <ion-item>
+        <ion-label>Film Type</ion-label>
+        <ion-select interface="popover" placeholder="Select One">
+          <ion-select-option value="ebt2">EBT2</ion-select-option>
+          <ion-select-option value="ebt3">EBT3</ion-select-option>
+          <ion-select-option value="ebt3unl">EBT3unl</ion-select-option>
+        </ion-select>
+      </ion-item> -->
+
+      <ion-item>
+        <ion-label>Film Type</ion-label>
+        <ion-select interface="popover" placeholder="Select type"  [(ngModel)]="newCalibration.type">
+          <ion-select-option *ngFor="let type of FilmType" [value]="type">{{type}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+
+
+    <ion-list>
+      <!-- <ion-item>
+        <ion-label>Calibration Formula</ion-label>
+        <ion-select interface="popover" placeholder="Select One">
+          <ion-select-option value="rational">Racional</ion-select-option>
+          <ion-select-option value="optics">Optico</ion-select-option>
+        </ion-select>
+      </ion-item> -->
+
+      <ion-item>
+        <ion-label>Calibration Formula</ion-label>
+        <ion-select interface="popover" placeholder="Select formula" [(ngModel)]="newCalibration.formula">
+          <ion-select-option *ngFor="let formula of CalibrationFormula.formula">{{formula}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <!-- <div>{{expr}}</div> -->
+    </ion-list>
+
+<!-- PARAMETERS -->
+    <ion-list-header>
+      <ion-label>
+        Parameters:
+      </ion-label>
+    </ion-list-header>
+
+    <!-- Parametro A -->
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            Red
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            Green
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            Blue
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            a:
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>         
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.red[0]"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.green[0]"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.blue[0]"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- Parametro B -->
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            b:
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.red[1]"></ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.green[1]"></ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.blue[1]"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- Parametro C -->
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            c:
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.red[2]"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.green[2]"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.blue[2]"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+
+  
+
+    </ion-grid>
+
+
+
+  </ion-list>
+
+<!-- SAVE BUTTON -->
+  <ion-item>
+    <ion-button expand="full" (click)="SaveNewCalibration()">
+      Save
+    </ion-button>
+  </ion-item>
+
+</ion-content>
