@@ -13,6 +13,10 @@
                        (touchend)="endDrawing()">
 </canvas>
 
+<!-- <canvas id="canvas" (touchstart)="startDrawing($event)"
+                    (touchend)="endDrawing()">
+</canvas> -->
+
 
 <ion-button expand="full" (click)="setBackground()">
   <ion-icon slot="start" name="image"></ion-icon>
@@ -97,7 +101,7 @@
   </div>
 
   <div>
-    <strong>RGB:</strong> {{this.rgba}}
+    <strong>RGBA:</strong> {{this.rgba}}
   </div>
   <p></p>
   <div>

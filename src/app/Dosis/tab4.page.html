@@ -23,8 +23,8 @@
 
       <ion-col>
         <ion-item>
-          <ion-button (click)="LoadCalibration()">
-            Load calibration
+          <ion-button (click)="DeleteLastCalibration()">
+            Delete calibration
           </ion-button>
         </ion-item>
       </ion-col>
@@ -36,7 +36,9 @@
     <ion-item>
       <ion-label>Choose calibration</ion-label>
         <ion-select interface="popover" placeholder="Select Calibration" [(ngModel)]="SelectedCalibration">
-          <ion-select-option *ngFor="let exportedcalibration of ExportedCalibrations" [value]="exportedcalibration">{{exportedcalibration.name}}</ion-select-option>
+          <!-- <ion-select-option *ngFor="let exportedcalibration of ExportedCalibrations" [value]="exportedcalibration">{{exportedcalibration.name}}</ion-select-option> -->
+          <ion-select-option *ngFor="let calibration of calibrations" [value]="calibration">{{calibration.name}}</ion-select-option>
+
         </ion-select>
     </ion-item>
   </ion-list>

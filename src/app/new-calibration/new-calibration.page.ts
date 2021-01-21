@@ -3,6 +3,10 @@ import { Router } from '@angular/router';
 import { Calibration } from '../models/calibration.interface';
 import { DosimetryService } from '../services/dosimetry.service';
 
+import { Plugins } from '@capacitor/core';
+
+const { Storage } = Plugins;
+
 @Component({
   selector: 'app-new-calibration',
   templateUrl: './new-calibration.page.html',
@@ -21,8 +25,6 @@ export class NewCalibrationPage {
     expresion: ['PV(D) = a + b / (D-c)', 'OD(D) = (a*D + b) / (c + D)', 'netOD(D) = a*D + b*D^c']
   
   };
-
-  
 
   newCalibration: Calibration = {
     name: '',
@@ -44,21 +46,29 @@ export class NewCalibrationPage {
   //   this.displayExpr = newCalibration.formula
   // }
 
-
   // displayExpr = ''
   
-
   // expr = this.CalibrationFormula.formula.indexOf(this.displayExpr)
   
 
   async SaveNewCalibration() {
 
-    this.dosimetryService.SavedCalibration = await this.newCalibration;
+    await this.dosimetryService.StorageNewCalibration(this.newCalibration);
     await console.log(this.newCalibration)
-
     this.router.navigate(['/tabs/tab4']);
 
   }
+
+  // async SaveNewCalibration() {
+
+  //   this.dosimetryService.SavedCalibration = await this.newCalibration;
+  //   await console.log(this.newCalibration)
+  //   this.router.navigate(['/tabs/tab4']);
+
+  // }
+
+
+  
 
   
 

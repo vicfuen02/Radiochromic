@@ -5,20 +5,17 @@ import { DosimetryService } from '../services/dosimetry.service'
 import { Photo } from '../models/photo.interface';
 import { Calibration } from '../models/calibration.interface';
 
-interface User {
-  id: number;
-  first: string;
-  last: string;
-}
 
 @Component({
   selector: 'app-tab4',
   templateUrl: './tab4.page.html',
   styleUrls: ['./tab4.page.scss'],
 })
-export class Tab4Page {
+export class Tab4Page implements OnInit {
 
-  ExportedCalibrations: Calibration[] = [];
+  // ExportedCalibrations: Calibration[] = [];
+
+  calibrations: Calibration[] = [];
 
   SelectedCalibration: Calibration;
 
@@ -40,13 +37,27 @@ export class Tab4Page {
               private dosimetryService: DosimetryService) {          
   }
 
+  async ngOnInit() {
 
-
-  LoadCalibration() {
-  
-    this.ExportedCalibrations.unshift(this.dosimetryService.AddSavedCalibration())
-    console.log(this.ExportedCalibrations)
+    await this.dosimetryService.GetStoragedCalibration().then( () => {
+      this.calibrations = this.dosimetryService.getCalibration();
+    });
   }
+
+  DeleteLastCalibration() {
+    this.dosimetryService.deleteCalibration()
+  }
+
+
+
+  // LoadCalibration() {
+
+  //   this.ExportedCalibrations.unshift(this.dosimetryService.AddSavedCalibration())
+  //   console.log(this.ExportedCalibrations)
+    
+  // }
+
+
 
   SetZero() {
 

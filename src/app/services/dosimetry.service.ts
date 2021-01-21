@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Calibration } from '../models/calibration.interface';
 
+import { Plugins } from '@capacitor/core';
+
+const { Storage } = Plugins;
 
 @Injectable({
   providedIn: 'root'
@@ -9,19 +12,65 @@ import { Calibration } from '../models/calibration.interface';
 export class DosimetryService {
 
   private platform: Platform;
-  Dosis: number; // borrar
+  Dosis: number;
 
-  SavedCalibration: Calibration;
+  // SavedCalibration: Calibration;
   saveXY: number[];
   saveRGB: number[];
+
+  private calibration: Calibration[] = [];
+  private CALIBRATION_STORAGE = 'calibrations';
 
   constructor(platform: Platform) {
     this.platform = platform;
   }
 
-  AddSavedCalibration() {
-    return this.SavedCalibration
+  ////////////////////// CALIBRATIONS ///////////////////////
+
+  // AddSavedCalibration() {
+  //   return this.SavedCalibration
+  // }
+
+
+  getCalibration() {
+    return this.calibration
   }
+
+  StorageNewCalibration(calibration: Calibration) {
+
+    this.calibration.unshift(calibration);
+    Storage.set({
+      key: this.CALIBRATION_STORAGE,
+      value: JSON.stringify(this.calibration.map(c => {
+        const calibrationCopy = {...c};
+        return calibrationCopy;
+      }))
+    });
+  }
+
+
+  async GetStoragedCalibration() {
+
+    const calibrationList = await Storage.get({ key: this.CALIBRATION_STORAGE });
+    this.calibration = JSON.parse(calibrationList.value) || [];
+    console.log(this.calibration)
+  }
+
+
+  async deleteCalibration() {
+    // Remove this calibration from the calibration reference data array
+    this.calibration.splice(0, 1);
+  
+    // Update calibrations array cache by overwriting the existing calibrations array
+    Storage.set({
+      key: this.CALIBRATION_STORAGE,
+      value: JSON.stringify(this.calibration)
+    });
+  
+  }
+
+
+  
 
 
   //////////////////// DOSIS CALCULUS ////////////////////////

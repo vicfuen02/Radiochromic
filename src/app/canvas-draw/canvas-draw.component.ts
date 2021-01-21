@@ -4,8 +4,9 @@ import { Platform } from '@ionic/angular';
 import { PhotoService } from '../services/photo.service';
 import { DosimetryService } from '../services/dosimetry.service'
 import { Photo } from '../models/photo.interface';
+import { FilesystemDirectory, FilesystemEncoding, Plugins } from '@capacitor/core';
 
-
+const { Filesystem } = Plugins;
 
 @Component({
   selector: 'app-canvas-draw',
@@ -51,8 +52,11 @@ export class CanvasDrawComponent {
 
   async setBackground() {
     try {
-      this.canvasElement = this.canvas.nativeElement;
 
+      // this.canvasElement = document.getElementById('canvas');
+      
+      this.canvasElement = this.canvas.nativeElement;
+      
       this.background = new Image()
       this.photoShared = await this.photoSvc.getSharedPhoto()
       
@@ -77,14 +81,16 @@ export class CanvasDrawComponent {
       this.imgHeight = this.background.naturalHeight;
       const imgRatio = this.imgWidth / this.imgHeight;
 
-      console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
+      // console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
 
       this.canvasElement.width = this.plt.width() + '';
       this.canvasElement.height = this.canvasElement.width / imgRatio;
       console.log('CanvasW:', this.canvasElement.width, 'canvasH:', this.canvasElement.height);
 
+      // this.ctx.imageSmoothingEnabled = false;
+      // this.ctx.globalCompositeOperation = "source-atop";
       this.ctx.drawImage(this.background,0,0, this.canvasElement.width, this.canvasElement.height);
-      // console.log('ctx:',this.ctx)
+      console.log('ctx:',this.ctx)
       
       // clear stored data
       this.ClearAllData()
@@ -121,26 +127,28 @@ export class CanvasDrawComponent {
       //pageX and pageY depends if it is a mouse event or a touch event
     let pageX = ev.pageX? ev.pageX : ev.touches[0].pageX;
     let pageY = ev.pageY? ev.pageY : ev.touches[0].pageY;
-    this.saveX = pageX - canvasPosition.x;
-    this.saveY = pageY - canvasPosition.y;
+    this.saveX = Math.trunc(pageX - canvasPosition.x);
+    this.saveY = Math.trunc(pageY - canvasPosition.y);
 
+    // this.saveX = this.saveX);
+    // this.saveY = Math.trunc(this.saveY);
+    // console.log(ev)
     console.log('click:', `X: ${this.saveX}, Y:${this.saveY}`)
 
-    // draw a rectangule where click
-    const w=10;
-    const h= 10;
-    otherctx.fillRect(this.saveX-w/2, this.saveY-h/2, w,h);
-    otherctx.clearRect(this.saveX-0.5*w/2, this.saveY-0.5*h/2, w*0.5,h*0.5);
 
     // Valores RGBA del pixel
     var colorIndices = this.getColorIndicesForCoord(this.saveX, this.saveY, this.canvasElement.width);
 
     // console.log('colorIndices: ',colorIndices);
 
-    this.rgba = this.RGBAvalues(this.ctx,colorIndices,this.canvasElement.width,this.canvasElement.height);
+    this.rgba = this.RGBAvalues(this.ctx, colorIndices, this.canvasElement.width, this.canvasElement.height);
 
-    this.saveX = Math.trunc(this.saveX);
-    this.saveY =Math.trunc(this.saveY);
+    // draw a rectangule where you click
+    const w=10;
+    const h= 10;
+    otherctx.fillRect(this.saveX-w/2, this.saveY-h/2, w,h);
+    otherctx.clearRect(this.saveX-0.5*w/2, this.saveY-0.5*h/2, w*0.5,h*0.5);
+
 
     this.dosimetryService.saveXY = [this.saveX, this.saveY];
     this.dosimetryService.saveRGB = this.rgba;
@@ -155,27 +163,29 @@ export class CanvasDrawComponent {
 
 
   getColorIndicesForCoord(x, y, width) {
+
     var red = y * (width * 4) + x * 4;
     return [red, red + 1, red + 2, red + 3];
   }
 
+
+
   RGBAvalues(context,colorIndices,width,height) {
 
     var imgdata = context.getImageData(0, 0, width, height);
-    console.log(imgdata)
+    console.log('IMGData:',imgdata)
+    console.log('Color Indices:', colorIndices)
 
-    colorIndices[0] = Math.trunc(colorIndices[0])
-    colorIndices[1] = Math.trunc(colorIndices[1])
-    colorIndices[2] = Math.trunc(colorIndices[2])
-    colorIndices[3] = Math.trunc(colorIndices[3])
-    // console.log(colorIndices)
+    console.log('elemento 0 color indices:',colorIndices[0])
+    var a = imgdata.data[colorIndices[3]] / 255;
 
     var r = imgdata.data[colorIndices[0]] / 255;
     var g = imgdata.data[colorIndices[1]] / 255;
     var b = imgdata.data[colorIndices[2]] / 255;
-    // var a = imgdata.data[colorIndices[3]] / 255;
-    var rgba = [+r.toFixed(4),+g.toFixed(4),+b.toFixed(4)];
+
+    var rgba = [+r.toFixed(5),+g.toFixed(5),+b.toFixed(5),+a.toFixed(5)];
     console.log('r:',r,'g:',g,'b:',b);
+    console.log('a:',a)
 
     return rgba
   }

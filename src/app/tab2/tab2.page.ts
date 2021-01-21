@@ -38,7 +38,7 @@ export class Tab2Page {
         text: 'Scan',
         icon: 'scan',
         handler: () => {
-          console.log(photo)
+          // console.log(photo)
           this.photoSvc.setSharedPhoto(photo);
           this.router.navigate(['/tabs/tab3']);
           // this.canvasDraw.loadImage(photo, position)
