@@ -1,11 +1,14 @@
 <ion-header>
   <ion-toolbar>
+
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/tab3"></ion-back-button>
     </ion-buttons>
+
     <ion-title>
       Dosimetry
     </ion-title>
+
   </ion-toolbar>
 </ion-header>
 
@@ -35,10 +38,10 @@
   <ion-list>
     <ion-item>
       <ion-label>Choose calibration</ion-label>
+
         <ion-select interface="popover" placeholder="Select Calibration" [(ngModel)]="SelectedCalibration">
           <!-- <ion-select-option *ngFor="let exportedcalibration of ExportedCalibrations" [value]="exportedcalibration">{{exportedcalibration.name}}</ion-select-option> -->
           <ion-select-option *ngFor="let calibration of calibrations" [value]="calibration">{{calibration.name}}</ion-select-option>
-
         </ion-select>
     </ion-item>
   </ion-list>
@@ -51,6 +54,9 @@
         <ion-button (click)="SetZero()">
           Set Zero
         </ion-button>
+        <div>
+          <strong>Zero points:</strong> {{this.ZeroLength}}
+        </div>
       </ion-col>
 
       <ion-col>
@@ -67,20 +73,32 @@
       
     </ion-row>
 
-    <ion-row>
+    <!-- <ion-row>
       <ion-col>
         <div>
           <strong>Zero points:</strong> {{this.ZeroLength}}
         </div>
       </ion-col>
+    </ion-row> -->
 
-      <ion-col>
-        <div>
-          <strong>Dosis:</strong> {{this.PixelDosis}}
-        </div>
-      </ion-col>
+    <ion-row>
+      <div>
+         <strong>Dose per channel:</strong> {{this.PixelDoseChannel}}
+      </div>
     </ion-row>
 
+    <ion-row>
+      <div>
+         <strong>RGB Mean Dose:</strong> {{this.RGB_MeanDose}}
+      </div>
+    </ion-row>
+    <ion-row>
+      <div>
+        <strong>RG Mean Dose:</strong> {{this.RG_MeanDose}}
+     </div>
+    </ion-row>
+
+  
   </ion-grid>
 
   

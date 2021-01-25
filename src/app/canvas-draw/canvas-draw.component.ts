@@ -1,12 +1,9 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Platform } from '@ionic/angular';
 
 import { PhotoService } from '../services/photo.service';
 import { DosimetryService } from '../services/dosimetry.service'
 import { Photo } from '../models/photo.interface';
-import { FilesystemDirectory, FilesystemEncoding, Plugins } from '@capacitor/core';
-
-const { Filesystem } = Plugins;
 
 @Component({
   selector: 'app-canvas-draw',
@@ -17,11 +14,14 @@ export class CanvasDrawComponent {
 
   @ViewChild('imageCanvas', { static: false }) canvas: any;
   canvasElement: any;
+
+  // Pixel coordinates
   saveX: number;
   saveY: number;
-
-  background = new Image();
-  ctx:any;
+ 
+  background = new Image(); // create new image where to put the photo
+  ctx:any; //context of the canvas element
+  imgdata:any; //Image data (RGBA values)
 
   photoShared: Photo;
   imgWidth: number;
@@ -39,22 +39,13 @@ export class CanvasDrawComponent {
 
   constructor(private plt: Platform,
               private photoSvc: PhotoService,
-              private dosimetryService: DosimetryService) {  }
+              private dosimetryService: DosimetryService) {       
+  }
   
-              
-  // ngAfterViewInit() {
-  //   // Set the Canvas Element
-  //   // this.canvasElement = this.canvas.nativeElement;
-
-    
-  // }
-
 
   async setBackground() {
     try {
 
-      // this.canvasElement = document.getElementById('canvas');
-      
       this.canvasElement = this.canvas.nativeElement;
       
       this.background = new Image()
@@ -62,35 +53,22 @@ export class CanvasDrawComponent {
       
       this.background.src = this.photoShared.webviewPath
       this.ctx = this.canvasElement.getContext('2d');
-      
-      // this.background.src = await '../../assets/icon/favicon.png';
-
-      // background.addEventListener('load', () => {
-      //   // once the image is loaded:
-      //   this.imgWidth = background.naturalWidth;
-      //   this.imgHeight = background.naturalHeight;
-      //   const imgRatio = this.imgWidth / this.imgHeight;
-      //   console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
-      //   this.canvasElement.width = this.plt.width() + '';
-      //   this.canvasElement.height = this.canvasElement.width / imgRatio;
-      //   console.log('CanvasW:', this.canvasElement.width, 'canvasH:', this.canvasElement.height);
-      //   ctx.drawImage(background,0,0, this.canvasElement.width, this.canvasElement.height);
-      // },false)
 
       this.imgWidth = this.background.naturalWidth;
       this.imgHeight = this.background.naturalHeight;
       const imgRatio = this.imgWidth / this.imgHeight;
 
-      // console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
+      console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
 
       this.canvasElement.width = this.plt.width() + '';
       this.canvasElement.height = this.canvasElement.width / imgRatio;
       console.log('CanvasW:', this.canvasElement.width, 'canvasH:', this.canvasElement.height);
 
       // this.ctx.imageSmoothingEnabled = false;
-      // this.ctx.globalCompositeOperation = "source-atop";
       this.ctx.drawImage(this.background,0,0, this.canvasElement.width, this.canvasElement.height);
-      console.log('ctx:',this.ctx)
+      // console.log('ctx:',this.ctx)
+
+      this.imgdata = this.ctx.getImageData(0, 0, this.canvasElement.width, this.canvasElement.height);
       
       // clear stored data
       this.ClearAllData()
@@ -119,8 +97,8 @@ export class CanvasDrawComponent {
 
     var canvasPosition = this.canvasElement.getBoundingClientRect();
     let otherctx = this.canvasElement.getContext('2d'); 
-    console.log('ev:',ev)
-    console.log('ctx:', this.ctx)
+    // console.log('ev:',ev)
+    // console.log('ctx:', this.ctx)
     // console.log('position:', canvasPosition)
 
     // we get the point where we click
@@ -130,18 +108,16 @@ export class CanvasDrawComponent {
     this.saveX = Math.trunc(pageX - canvasPosition.x);
     this.saveY = Math.trunc(pageY - canvasPosition.y);
 
-    // this.saveX = this.saveX);
-    // this.saveY = Math.trunc(this.saveY);
-    // console.log(ev)
     console.log('click:', `X: ${this.saveX}, Y:${this.saveY}`)
 
-
-    // Valores RGBA del pixel
+    // RGBA indexes of the selected pixel
     var colorIndices = this.getColorIndicesForCoord(this.saveX, this.saveY, this.canvasElement.width);
 
     // console.log('colorIndices: ',colorIndices);
 
-    this.rgba = this.RGBAvalues(this.ctx, colorIndices, this.canvasElement.width, this.canvasElement.height);
+    //RGBA values of the selected pixel
+    this.rgba = this.RGBAvalues(this.imgdata, colorIndices);
+    // this.rgba = this.RGBAvalues(this.ctx, colorIndices, this.canvasElement.width, this.canvasElement.height);
 
     // draw a rectangule where you click
     const w=10;
@@ -170,18 +146,14 @@ export class CanvasDrawComponent {
 
 
 
-  RGBAvalues(context,colorIndices,width,height) {
+  RGBAvalues(ImageData,colorIndices) {
 
-    var imgdata = context.getImageData(0, 0, width, height);
-    console.log('IMGData:',imgdata)
     console.log('Color Indices:', colorIndices)
+    var a = ImageData.data[colorIndices[3]] / 255;
 
-    console.log('elemento 0 color indices:',colorIndices[0])
-    var a = imgdata.data[colorIndices[3]] / 255;
-
-    var r = imgdata.data[colorIndices[0]] / 255;
-    var g = imgdata.data[colorIndices[1]] / 255;
-    var b = imgdata.data[colorIndices[2]] / 255;
+    var r = ImageData.data[colorIndices[0]] / 255;
+    var g = ImageData.data[colorIndices[1]] / 255;
+    var b = ImageData.data[colorIndices[2]] / 255;
 
     var rgba = [+r.toFixed(5),+g.toFixed(5),+b.toFixed(5),+a.toFixed(5)];
     console.log('r:',r,'g:',g,'b:',b);
@@ -189,6 +161,27 @@ export class CanvasDrawComponent {
 
     return rgba
   }
+
+  // RGBAvalues(context,colorIndices,width,height) {
+
+  //   var imgdata = context.getImageData(0, 0, width, height);
+  //   console.log('IMGData:',imgdata)
+  //   console.log('Color Indices:', colorIndices)
+
+  //   console.log('elemento 0 color indices:',colorIndices[0])
+  //   var a = imgdata.data[colorIndices[3]] / 255;
+
+  //   var r = imgdata.data[colorIndices[0]] / 255;
+  //   var g = imgdata.data[colorIndices[1]] / 255;
+  //   var b = imgdata.data[colorIndices[2]] / 255;
+
+  //   var rgba = [+r.toFixed(5),+g.toFixed(5),+b.toFixed(5),+a.toFixed(5)];
+  //   console.log('r:',r,'g:',g,'b:',b);
+  //   console.log('a:',a)
+
+  //   return rgba
+  // }
+
 
 
 

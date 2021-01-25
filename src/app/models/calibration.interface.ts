@@ -9,9 +9,9 @@ export interface Calibration{
     type: string;
     formula: string;
 
-    red: number[];
-    blue: number[];
-    green: number[];
+    red_param: number[];
+    blue_param: number[];
+    green_param: number[];
 
     // ar: number;
     // ag: number;
