@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab3"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>
+      Beam Distribution
+    </ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-button *ngIf="!CropImage" (click)="croppedImage()">
+    Crop Image
+  </ion-button>
+  <ion-button *ngIf="CropImage" (click)="croppedImage()">
+    Save
+  </ion-button>
+  <p>{{CropImage}}</p>
+
+  <p *ngIf="CropImage">
+    Image crop
+  </p>
+
+
+</ion-content>

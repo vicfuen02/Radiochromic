@@ -11,11 +11,23 @@
 
 <ion-content [fullscreen]="true">
 
-  <ion-item routerLink="/tabs/tab4">
-    <ion-button>
-      Dosimetry
-    </ion-button>
-  </ion-item>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-item routerLink="/tabs/tab4">
+          Dosimetry
+        </ion-item>
+      </ion-col>
+
+      <ion-col>
+        <ion-item routerLink="/tabs/beam-distribution">
+          Beam Distribution
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+ 
+
   <p></p>
 
   <app-canvas-draw></app-canvas-draw>

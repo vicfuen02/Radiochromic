@@ -76,7 +76,6 @@ export class CanvasDrawComponent {
     } catch (e) {
       console.log('no photo selected')
     }
-
   }
 
 
@@ -89,11 +88,9 @@ export class CanvasDrawComponent {
     this.coordsData = [];
     this.saveX=0;
     this.saveY=0;
-
   }
 
   startDrawing(ev) {
-    // console.log('-----START:', ev)
 
     var canvasPosition = this.canvasElement.getBoundingClientRect();
     let otherctx = this.canvasElement.getContext('2d'); 
@@ -107,17 +104,15 @@ export class CanvasDrawComponent {
     let pageY = ev.pageY? ev.pageY : ev.touches[0].pageY;
     this.saveX = Math.trunc(pageX - canvasPosition.x);
     this.saveY = Math.trunc(pageY - canvasPosition.y);
-
     console.log('click:', `X: ${this.saveX}, Y:${this.saveY}`)
 
     // RGBA indexes of the selected pixel
     var colorIndices = this.getColorIndicesForCoord(this.saveX, this.saveY, this.canvasElement.width);
-
-    // console.log('colorIndices: ',colorIndices);
-
     //RGBA values of the selected pixel
     this.rgba = this.RGBAvalues(this.imgdata, colorIndices);
-    // this.rgba = this.RGBAvalues(this.ctx, colorIndices, this.canvasElement.width, this.canvasElement.height);
+    console.log('RGBA:', this.rgba)
+
+    this.SquarePixelsNearby(this.imgdata, this.saveX, this.saveY, 10, 10)
 
     // draw a rectangule where you click
     const w=10;
@@ -125,10 +120,8 @@ export class CanvasDrawComponent {
     otherctx.fillRect(this.saveX-w/2, this.saveY-h/2, w,h);
     otherctx.clearRect(this.saveX-0.5*w/2, this.saveY-0.5*h/2, w*0.5,h*0.5);
 
-
     this.dosimetryService.saveXY = [this.saveX, this.saveY];
     this.dosimetryService.saveRGB = this.rgba;
-
     // return [this.saveX, this.saveY]
   }
 
@@ -137,27 +130,54 @@ export class CanvasDrawComponent {
     // console.log('-----END:', ev)
   }
 
+  // calcula los valores rgb de un rectangulo de tamañano widht*height centrado en el pixel (x,y)
+  SquarePixelsNearby(imageData, x, y, width, height) {
+
+    x = Math.trunc(x - width/2) - 1;
+    y = Math.trunc(y - height/2) - 1;
+
+    let PixelsNearby_R: number[]=[];
+    let PixelsNearby_G: number[]=[];
+    let PixelsNearby_B: number[]=[];
+
+    for (let j = y; j < (y + height); j++) {
+      for (let i = x; i < (x + width); i++) {
+        
+        let RGBdata = this.RGBAvalues(imageData, this.getColorIndicesForCoord(i, j, width));
+        
+        PixelsNearby_R.push(RGBdata[0]);
+        PixelsNearby_G.push(RGBdata[1]);
+        PixelsNearby_B.push(RGBdata[2]);
+      }
+    }
+    let r = this.dosimetryService.ArrayMean(PixelsNearby_R);
+    let g = this.dosimetryService.ArrayMean(PixelsNearby_G);
+    let b = this.dosimetryService.ArrayMean(PixelsNearby_B);
+    console.log('Mean rgb Pixels Nearbey:', r, g, b)
+    // console.log('RGBPixelsNearby:',RGBPixelsNearby)
+    return [r, g, b]
+  }
+
 
   getColorIndicesForCoord(x, y, width) {
-
     var red = y * (width * 4) + x * 4;
     return [red, red + 1, red + 2, red + 3];
   }
 
 
 
-  RGBAvalues(ImageData,colorIndices) {
+  RGBAvalues(ImageData,colorIndices: number[]) {
 
-    console.log('Color Indices:', colorIndices)
-    var a = ImageData.data[colorIndices[3]] / 255;
-
+    // console.log('Color Indices:', colorIndices)
+  
     var r = ImageData.data[colorIndices[0]] / 255;
     var g = ImageData.data[colorIndices[1]] / 255;
     var b = ImageData.data[colorIndices[2]] / 255;
+    var a = ImageData.data[colorIndices[3]] / 255;
 
     var rgba = [+r.toFixed(5),+g.toFixed(5),+b.toFixed(5),+a.toFixed(5)];
-    console.log('r:',r,'g:',g,'b:',b);
-    console.log('a:',a)
+    // console.log('r:',r,'g:',g,'b:',b);
+    // console.log('a:',a)
 
     return rgba
   }

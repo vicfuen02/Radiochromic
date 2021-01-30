@@ -28,6 +28,10 @@ const routes: Routes = [
         loadChildren: () => import('../new-calibration/new-calibration.module').then(m => m.NewCalibrationPageModule)
       },
       {
+        path: 'beam-distribution',
+        loadChildren: () => import('../beam-distribution/beam-distribution.module').then( m => m.BeamDistributionPageModule)
+      },
+      {
         path: '',
         redirectTo: '/tabs/tab1',
         pathMatch: 'full'
