@@ -2,8 +2,11 @@ import { Component, ViewChild } from '@angular/core';
 import { Platform } from '@ionic/angular';
 
 import { PhotoService } from '../services/photo.service';
-import { DosimetryService } from '../services/dosimetry.service'
+import { DosimetryService } from '../services/dosimetry.service';
 import { Photo } from '../models/photo.interface';
+import { RGBAvaluesService } from '../services/rgbavalues.service';
+import { BeamDistributionService } from '../services/beamdistribution.service';
+
 
 @Component({
   selector: 'app-canvas-draw',
@@ -39,9 +42,14 @@ export class CanvasDrawComponent {
 
   constructor(private plt: Platform,
               private photoSvc: PhotoService,
-              private dosimetryService: DosimetryService) {       
+              private dosimetryService: DosimetryService,
+              private rgbavaluesService: RGBAvaluesService,
+              private beamDistributionService: BeamDistributionService) {       
   }
-  
+
+  prueba() {
+    console.log('ey que tal')
+  }
 
   async setBackground() {
     try {
@@ -51,27 +59,36 @@ export class CanvasDrawComponent {
       this.background = new Image()
       this.photoShared = await this.photoSvc.getSharedPhoto()
       
-      this.background.src = this.photoShared.webviewPath
+      this.background.src = this.photoShared.webviewPath;
       this.ctx = this.canvasElement.getContext('2d');
 
+
+      //////// Tamaño original, canvas y renormalizacion de la imagen
       this.imgWidth = this.background.naturalWidth;
       this.imgHeight = this.background.naturalHeight;
       const imgRatio = this.imgWidth / this.imgHeight;
-
       console.log('OriginalW:', this.imgWidth, 'OriginalH:', this.imgHeight, 'ratio:', imgRatio);
 
       this.canvasElement.width = this.plt.width() + '';
       this.canvasElement.height = this.canvasElement.width / imgRatio;
       console.log('CanvasW:', this.canvasElement.width, 'canvasH:', this.canvasElement.height);
+      this.rgbavaluesService.widthCanvas = this.canvasElement.width;
 
+      this.beamDistributionService.resizeX = this.imgWidth / this.canvasElement.width;
+      this.beamDistributionService.resizeY = this.imgHeight / this.canvasElement.height;
+      console.log('resizeX:', this.beamDistributionService.resizeX, 
+                  'resizeY:', this.beamDistributionService.resizeY
+      );
+      
       // this.ctx.imageSmoothingEnabled = false;
       this.ctx.drawImage(this.background,0,0, this.canvasElement.width, this.canvasElement.height);
       // console.log('ctx:',this.ctx)
 
       this.imgdata = this.ctx.getImageData(0, 0, this.canvasElement.width, this.canvasElement.height);
-      
+      this.rgbavaluesService.imageData = this.imgdata;
+      console.log('imgData CANVAS:', this.imgdata);
       // clear stored data
-      this.ClearAllData()
+      // this.ClearAllData()
 
     } catch (e) {
       console.log('no photo selected')
@@ -107,12 +124,10 @@ export class CanvasDrawComponent {
     console.log('click:', `X: ${this.saveX}, Y:${this.saveY}`)
 
     // RGBA indexes of the selected pixel
-    var colorIndices = this.getColorIndicesForCoord(this.saveX, this.saveY, this.canvasElement.width);
+    var colorIndices = this.rgbavaluesService.getColorIndicesForCoord(this.saveX, this.saveY, this.canvasElement.width);
     //RGBA values of the selected pixel
-    this.rgba = this.RGBAvalues(this.imgdata, colorIndices);
+    this.rgba = this.rgbavaluesService.RGBAvalues(this.imgdata, colorIndices);
     console.log('RGBA:', this.rgba)
-
-    this.SquarePixelsNearby(this.imgdata, this.saveX, this.saveY, 10, 10)
 
     // draw a rectangule where you click
     const w=10;
@@ -126,78 +141,59 @@ export class CanvasDrawComponent {
   }
 
 
+
   endDrawing(ev) {
     // console.log('-----END:', ev)
   }
 
-  // calcula los valores rgb de un rectangulo de tamañano widht*height centrado en el pixel (x,y)
-  SquarePixelsNearby(imageData, x, y, width, height) {
+  // // calcula los valores rgb de un rectangulo de tamañano widht*height centrado en el pixel (x,y)
+  // SquarePixelsNearby(imageData, x, y, width, height) {
 
-    x = Math.trunc(x - width/2) - 1;
-    y = Math.trunc(y - height/2) - 1;
+  //   x = Math.trunc(x - width/2) - 1;
+  //   y = Math.trunc(y - height/2) - 1;
 
-    let PixelsNearby_R: number[]=[];
-    let PixelsNearby_G: number[]=[];
-    let PixelsNearby_B: number[]=[];
+  //   let PixelsNearby_R: number[]=[];
+  //   let PixelsNearby_G: number[]=[];
+  //   let PixelsNearby_B: number[]=[];
 
-    for (let j = y; j < (y + height); j++) {
-      for (let i = x; i < (x + width); i++) {
+  //   for (let j = y; j < (y + height); j++) {
+  //     for (let i = x; i < (x + width); i++) {
         
-        let RGBdata = this.RGBAvalues(imageData, this.getColorIndicesForCoord(i, j, width));
+  //       let RGBdata = this.RGBAvalues(imageData, this.getColorIndicesForCoord(i, j, width));
         
-        PixelsNearby_R.push(RGBdata[0]);
-        PixelsNearby_G.push(RGBdata[1]);
-        PixelsNearby_B.push(RGBdata[2]);
-      }
-    }
-    let r = this.dosimetryService.ArrayMean(PixelsNearby_R);
-    let g = this.dosimetryService.ArrayMean(PixelsNearby_G);
-    let b = this.dosimetryService.ArrayMean(PixelsNearby_B);
-    console.log('Mean rgb Pixels Nearbey:', r, g, b)
-    // console.log('RGBPixelsNearby:',RGBPixelsNearby)
-    return [r, g, b]
-  }
+  //       PixelsNearby_R.push(RGBdata[0]);
+  //       PixelsNearby_G.push(RGBdata[1]);
+  //       PixelsNearby_B.push(RGBdata[2]);
+  //     }
+  //   }
+  //   let r = this.dosimetryService.ArrayMean(PixelsNearby_R);
+  //   let g = this.dosimetryService.ArrayMean(PixelsNearby_G);
+  //   let b = this.dosimetryService.ArrayMean(PixelsNearby_B);
+  //   console.log('Mean rgb Pixels Nearbey:', r, g, b)
+  //   // console.log('RGBPixelsNearby:',RGBPixelsNearby)
+  //   return [r, g, b]
+  // }
 
 
-  getColorIndicesForCoord(x, y, width) {
-    var red = y * (width * 4) + x * 4;
-    return [red, red + 1, red + 2, red + 3];
-  }
+  // getColorIndicesForCoord(x, y, width) {
+  //   var red = y * (width * 4) + x * 4;
+  //   return [red, red + 1, red + 2, red + 3];
+  // }
 
 
 
-  RGBAvalues(ImageData,colorIndices: number[]) {
+  // RGBAvalues(ImageData,colorIndices: number[]) {
 
-    // console.log('Color Indices:', colorIndices)
+  //   // console.log('Color Indices:', colorIndices)
   
-    var r = ImageData.data[colorIndices[0]] / 255;
-    var g = ImageData.data[colorIndices[1]] / 255;
-    var b = ImageData.data[colorIndices[2]] / 255;
-    var a = ImageData.data[colorIndices[3]] / 255;
-
-    var rgba = [+r.toFixed(5),+g.toFixed(5),+b.toFixed(5),+a.toFixed(5)];
-    // console.log('r:',r,'g:',g,'b:',b);
-    // console.log('a:',a)
-
-    return rgba
-  }
-
-  // RGBAvalues(context,colorIndices,width,height) {
-
-  //   var imgdata = context.getImageData(0, 0, width, height);
-  //   console.log('IMGData:',imgdata)
-  //   console.log('Color Indices:', colorIndices)
-
-  //   console.log('elemento 0 color indices:',colorIndices[0])
-  //   var a = imgdata.data[colorIndices[3]] / 255;
-
-  //   var r = imgdata.data[colorIndices[0]] / 255;
-  //   var g = imgdata.data[colorIndices[1]] / 255;
-  //   var b = imgdata.data[colorIndices[2]] / 255;
+  //   var r = ImageData.data[colorIndices[0]] / 255;
+  //   var g = ImageData.data[colorIndices[1]] / 255;
+  //   var b = ImageData.data[colorIndices[2]] / 255;
+  //   var a = ImageData.data[colorIndices[3]] / 255;
 
   //   var rgba = [+r.toFixed(5),+g.toFixed(5),+b.toFixed(5),+a.toFixed(5)];
-  //   console.log('r:',r,'g:',g,'b:',b);
-  //   console.log('a:',a)
+  //   // console.log('r:',r,'g:',g,'b:',b);
+  //   // console.log('a:',a)
 
   //   return rgba
   // }
@@ -205,46 +201,43 @@ export class CanvasDrawComponent {
 
 
 
-
   // SERVICIO PARA EL RESTO DE PAGINAS (?)
   // Save Data
-  SetOrigincoord() {
-    this.coords0 = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
-  }
+  // SetOrigincoord() {
+  //   this.coords0 = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
+  // }
 
-  SetXcoord() {
-    this.coordsX = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
-  }
+  // SetXcoord() {
+  //   this.coordsX = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
+  // }
 
-  SetYcoord() {
-    this.coordsY = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
-  }
+  // SetYcoord() {
+  //   this.coordsY = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
+  // }
 
-  SetDatacoord() {
-    // this.coordsData = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
-    this.coordsData.push(Math.trunc(this.saveX), Math.trunc(this.saveY));
+  // SetDatacoord() {
+  //   // this.coordsData = [Math.trunc(this.saveX), Math.trunc(this.saveY)];
+  //   this.coordsData.push(Math.trunc(this.saveX), Math.trunc(this.saveY));
     
-    this.RGBAData = this.rgba;
-    console.log(this.coordsData)
-    // return this.coordsData
-  }
-  ClearDatacoord() {
-    this.coordsData = [];
-    console.log(this.coordsData)
-  }
+  //   this.RGBAData = this.rgba;
+  //   console.log(this.coordsData)
+  //   // return this.coordsData
+  // }
+  // ClearDatacoord() {
+  //   this.coordsData = [];
+  //   console.log(this.coordsData)
+  // }
 
 
+  // DistanceCalculus() {
+  //   //Dosis
+  //   // this.Results = this.dosimetryService.RacionalCalibracion(this.RGBAData[0])
 
-  DistanceCalculus() {
-    //Dosis
-    // this.Results = this.dosimetryService.RacionalCalibracion(this.RGBAData[0])
-
-    //Distancia entre dos puntos
-    let CoordSist = this.dosimetryService.CoordinateSistem(this.coords0,this.coordsX,this.coordsY);
-    this.distance = +this.dosimetryService.Distances(CoordSist[1],CoordSist[2],[this.coordsData[0],this.coordsData[1]],[this.coordsData[2],this.coordsData[3]]).toFixed(2)
-    // console.log(distance)
-
-  }
+  //   //Distancia entre dos puntos
+  //   let CoordSist = this.dosimetryService.CoordinateSistem(this.coords0,this.coordsX,this.coordsY);
+  //   this.distance = +this.dosimetryService.Distances(CoordSist[1],CoordSist[2],[this.coordsData[0],this.coordsData[1]],[this.coordsData[2],this.coordsData[3]]).toFixed(2)
+  //   // console.log(distance)
+  // }
   
 
 }

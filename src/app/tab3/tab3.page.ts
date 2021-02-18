@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Platform } from '@ionic/angular';
+import { CanvasDrawComponent } from '../canvas-draw/canvas-draw.component';
+import { PhotoService } from '../services/photo.service';
 
 @Component({
   selector: 'app-tab3',
@@ -7,6 +10,21 @@ import { Component } from '@angular/core';
 })
 export class Tab3Page {
 
-  constructor() {}
+  @ViewChild("CanvasComponent") CanvasComponent: CanvasDrawComponent;
+  constructor(private platform: Platform,
+              private photoSvc: PhotoService) {}
+
+
+  ionViewDidEnter() {
+
+    this.CanvasComponent.setBackground()
+    // addEventListener(this.photoSvc.SharedEvent + "", () => {
+    //   this.CanvasComponent.setBackground()
+    // })
+
+  }
+
+
+
 
 }

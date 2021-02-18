@@ -14,9 +14,7 @@ import { Router } from '@angular/router';
 export class Tab2Page {
   public photos: Photo[]=[];
   
-  constructor(private photoSvc: PhotoService, 
-
-
+  constructor(private photoSvc: PhotoService,
               public actionSheetController: ActionSheetController,
               private router: Router,
               public popoverCtrl: PopoverController) {}

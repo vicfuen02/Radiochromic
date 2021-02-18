@@ -83,33 +83,24 @@
 
     <ion-row>
       <div>
-         <strong>Dose per channel:</strong> {{this.PixelDoseChannel}}
+         <strong>Dose per channel (Gy):</strong> {{this.PixelDoseChannel}}
       </div>
     </ion-row>
 
     <ion-row>
       <div>
-         <strong>RGB Mean Dose:</strong> {{this.RGB_MeanDose}}
+         <strong>RGB Mean Dose (Gy):</strong> {{this.RGB_MeanDose}}
       </div>
     </ion-row>
     <ion-row>
       <div>
-        <strong>RG Mean Dose:</strong> {{this.RG_MeanDose}}
+        <strong>RG Mean Dose (Gy):</strong> {{this.RG_MeanDose}}
      </div>
     </ion-row>
-
-  
   </ion-grid>
 
   
-
-  
-
-
-  <app-canvas-draw></app-canvas-draw>
-
-
-
+  <app-canvas-draw #CanvasComponent></app-canvas-draw>
   
  
 </ion-content>

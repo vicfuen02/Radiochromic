@@ -77,19 +77,21 @@ export class DosimetryService {
 
   DosisPerChannel(SavedCalibration: Calibration, RGB: number[], zeroRGB?: number[]) {
 
+    // RGB = [red, green, blue], RGB values 
+    // zeroRGB = [red, green, blue], zero RGB values 
     // a_color = SavedCalibration.color[0]
     // b_color = SavedCalibration.color[1]
     // c_color = SavedCalibration.color[2]
 
     if (SavedCalibration.formula == 'Rational') {
 
-      console.log('Rational')
+      // console.log('Rational')
 
       this.Dose_channel = [ this.RationalEquation(RGB[0], SavedCalibration.red_param),
                             this.RationalEquation(RGB[1], SavedCalibration.green_param),
                             this.RationalEquation(RGB[2], SavedCalibration.blue_param)
       ];
-      console.log('Dose per channel:', this.Dose_channel)
+      // console.log('Dose per channel:', this.Dose_channel)
 
     } else if (SavedCalibration.formula == 'Optical Density') {
 
@@ -125,15 +127,44 @@ export class DosimetryService {
 
     return this.Dose_channel
   }
-
+  
   // Calcula la dosis total del pixel a partir de la dosis de cada canal
   TotalDoses(DosesPerChannel: number[]) {
 
     this.RGB_MeanDose = +this.ArrayMean(DosesPerChannel).toFixed(3)
     this.RG_MeanDose = +this.ArrayMean(DosesPerChannel,2).toFixed(3)
-    console.log('RGB_MeanDose:', this.RGB_MeanDose,'RG_MeanDose:', this.RG_MeanDose)
+    // console.log('RGB_MeanDose:', this.RGB_MeanDose,'RG_MeanDose:', this.RG_MeanDose)
     return [this.RGB_MeanDose, this.RG_MeanDose]
   }
+
+
+  SubstracZero(totalDosePixel: number[], zero, calibration: Calibration) {
+
+    let zeroMeanRGB: number[];
+    let zeroMeanRG: number[];
+
+    for (let i=0; i < zero.length; i++) {
+
+      let zeroRGB: number[] = [zero[0][i], zero[1][i], zero[2][i]]
+      let doseZero = this.DosisPerChannel(calibration, zeroRGB, zeroRGB)
+      let dose = this.TotalDoses(doseZero)
+      zeroMeanRGB.push(dose[0])
+      zeroMeanRG.push(dose[1])
+    }
+    let totalDoseZero = [this.ArrayMean(zeroMeanRGB), this.ArrayMean(zeroMeanRG)];
+      
+    let DoseWithoutZero: number[];
+    for (let i = 0; i < totalDosePixel.length; i++) {
+      DoseWithoutZero[i]= totalDosePixel[i] - totalDoseZero[i]
+    }
+
+    return DoseWithoutZero
+  }
+
+
+  
+
+  ////////////////////////// FUNCIONES DE CALIBRACION ///////////////////
 
   RationalEquation(PV: number, Parameters: number[]) {
     // a = Parameters[0]
@@ -148,6 +179,68 @@ export class DosimetryService {
     // c = Parameters[2]
     let OD = -Math.log10(PV)
     return ( Parameters[1] - Parameters[2]*OD ) / (OD - Parameters[0])
+  }
+
+  NetOpticalDensity(D:number, PV: number, PV0: number, Parameters: number[]) {
+
+    let a = Parameters[0]
+    let b = Parameters[1]
+    let c = Parameters[2];
+
+    let netOD = Math.log10( PV0 / PV )
+    // console.log('netOD:', netOD);
+
+    let funct = (a*D) + b*Math.pow(D, c) - netOD;
+    // console.log('a*D:', a*D);
+    // console.log('D:', D);
+    // console.log('(c):', c);
+    // console.log('D**c:', Math.pow(D,c))
+    // console.log('(a*D) + b*(D**c):', (a*D) + b*(D**c));
+
+    let DiffFunct = a + b*c*Math.pow(D,c-1);
+    // console.log('funct:', funct, 'DiffFunct:', DiffFunct);
+
+    return [funct, DiffFunct]
+  }
+
+  ////////////////////// SOPORTE MATEMATICO //////////////////////
+
+  // Calculate the mean of an array. If 'elements' is specified, it calculate the mean of the 
+  // first 'elements' elements
+  ArrayMean(array: number[], elements?) {
+
+    if (elements) {
+      // console.log('exist element')
+      if (elements <= array.length) {
+
+        // console.log('elements < array.length')
+        let sum = 0;
+        for (let i=0; i < elements; i++ ) {
+          sum = sum + array[i];
+        }
+        return sum / elements
+
+      } else {
+        console.log(`Can't calculate. Element (${elements}) > array length (${array.length})`)
+      }
+    } else {
+
+      // console.log('dont exist element, calculating the mean of the whole array')
+      let sum = 0;
+      for (let i=0; i < array.length; i++ ) {
+        sum = sum + array[i];
+      }
+      return sum / array.length
+    }
+  }
+
+  RoundArray(array: number[], decimals: number) {
+
+    let roundArray: number[] = [] 
+    for (let i = 0; i < array.length; i++) {
+      roundArray[i] = +array[i].toFixed(decimals);
+    }
+    return roundArray;
   }
 
   NewtonRaphsonMethod(x0, tol, callback, PV, PV0, Parameters) {
@@ -179,64 +272,9 @@ export class DosimetryService {
     return x
   }
 
-
-  NetOpticalDensity(D:number, PV: number, PV0: number, Parameters: number[]) {
-
-    let a = Parameters[0]
-    let b = Parameters[1]
-    let c = Parameters[2];
-
-    let netOD = Math.log10( PV0 / PV )
-    // console.log('netOD:', netOD);
-
-    let funct = (a*D) + b*Math.pow(D, c) - netOD;
-    // console.log('a*D:', a*D);
-    // console.log('D:', D);
-    // console.log('(c):', c);
-    // console.log('D**c:', Math.pow(D,c))
-    // console.log('(a*D) + b*(D**c):', (a*D) + b*(D**c));
-
-    let DiffFunct = a + b*c*Math.pow(D,c-1);
-    // console.log('funct:', funct, 'DiffFunct:', DiffFunct);
-
-    return [funct, DiffFunct]
-
-  }
-
-
-  // Calculate the mean of an array. If you especify 'elements', it calculate the mean of the 
-  // first 'elements' elements
-  ArrayMean(array: number[], elements?) {
-
-    if (elements) {
-      // console.log('exist element')
-      if (elements <= array.length) {
-
-        // console.log('elements < array.length')
-        let sum = 0;
-        for (let i=0; i < elements; i++ ) {
-          sum = sum + array[i];
-        }
-        return sum / elements
-
-      } else {
-        console.log(`Can't calculate. Element (${elements}) > array length (${array.length})`)
-      }
-    } else {
-
-      // console.log('dont exist element, calculating the mean of the whole array')
-      let sum = 0;
-      for (let i=0; i < array.length; i++ ) {
-        sum = sum + array[i];
-      }
-      return sum / array.length
-    }
-  }
-
     
 
-    
-
+  
   ///////////////////// DISTANCES //////////////////////////
 
   LineLength(point0: [number, number], point1: [number, number]) {

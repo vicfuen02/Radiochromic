@@ -8,13 +8,19 @@ import { BeamDistributionPageRoutingModule } from './beam-distribution-routing.m
 
 import { BeamDistributionPage } from './beam-distribution.page';
 
+import { ImageCropperModule } from 'ngx-image-cropper';
+import { CanvasDrawComponent } from '../canvas-draw/canvas-draw.component';
+import { ChartsModule } from 'ng2-charts';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    BeamDistributionPageRoutingModule
+    BeamDistributionPageRoutingModule,
+    ImageCropperModule,
+    ChartsModule
   ],
-  declarations: [BeamDistributionPage]
+  declarations: [BeamDistributionPage, CanvasDrawComponent]
 })
 export class BeamDistributionPageModule {}

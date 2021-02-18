@@ -12,19 +12,226 @@
   </ion-toolbar>
 </ion-header>
 
+
+
 <ion-content>
 
-  <ion-button *ngIf="!CropImage" (click)="croppedImage()">
-    Crop Image
+  <!--------------------- CALIBRACION -------------------------->
+  <ion-list>
+    <ion-item>
+      <ion-label>Choose calibration</ion-label>
+
+        <ion-select interface="popover" placeholder="Select Calibration" [(ngModel)]="SelectedCalibration">
+          <ion-select-option *ngFor="let calibration of calibrations" [value]="calibration">{{calibration.name}}</ion-select-option>
+        </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <ion-button *ngIf="!CalculatingDistance" (click)="DisplayIf($ev)">
+    Set coordinates
   </ion-button>
-  <ion-button *ngIf="CropImage" (click)="croppedImage()">
+  <ion-button *ngIf="CalculatingDistance" (click)="DisplayIf($ev)">
     Save
   </ion-button>
-  <p>{{CropImage}}</p>
+  
 
-  <p *ngIf="CropImage">
-    Image crop
-  </p>
+  <!--------------------- DISTANCIAS --------------------->
+  <ion-card *ngIf="CalculatingDistance">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-button expand="full" size="small" (click)="SetOrigincoord()">
+            <ion-icon  name="info"></ion-icon>
+            Set origin
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <div>
+            <p></p>
+            <strong>Origin:</strong> {{this.coords0}}
+          </div>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-button expand="full" size="small" (click)="SetXcoord()">
+            <ion-icon slot="start" name="info"></ion-icon>
+            Set X coord
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <div>
+            <p></p>
+            <strong>X Axis:</strong> {{this.coordsX}}
+          </div>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-button expand="full" size="small" (click)="SetYcoord()">
+            <ion-icon slot="start" name="info"></ion-icon>
+            Set Y coord
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <div>
+            <p></p>
+            <strong>Y Axis:</strong> {{coordsY}}
+          </div>
+        </ion-col>
+      </ion-row>
+
+      <!-- <ion-row>
+        <ion-col>
+          <ion-button expand="full" size="small" (click)="SetDatacoord()">
+            <ion-icon slot="start" name="info"></ion-icon>
+            Set Point
+          </ion-button>
+        </ion-col>
+
+        <ion-col>
+          <ion-button expand="full" size="small" (click)="ClearDatacoord()">
+            <ion-icon slot="start" name="info"></ion-icon>
+            Clear Point
+          </ion-button>
+        </ion-col>
+      </ion-row> -->
+
+      <ion-row>
+        <ion-col>
+          <ion-button expand="full" size="small" (click)="SetZero()">
+            Set Zero
+          </ion-button>
+          <div>
+            <strong>Zero points:</strong> {{this.ZeroLength}}
+          </div>
+        </ion-col>
+  
+        <ion-col>
+          <ion-button expand="full" size="small" (click)="ClearZero()">
+            Clear Zero
+          </ion-button>
+        </ion-col>
+      </ion-row>
+
+      <!-- <ion-row>
+        <ion-col>
+          <ion-button expand="full" size="small" (click)="DistanceCalculus()">
+            <ion-icon slot="start" name="info"></ion-icon>
+            Calculate
+          </ion-button>
+
+          <div>
+            <strong>Distance: </strong> {{distance}}
+          </div>
+        </ion-col>
+      </ion-row> -->
+      
+    </ion-grid>
+  </ion-card>
+
+
+  <!--------------------- COMPONENTE ---------------------->
+  <app-canvas-draw #CanvasComponent *ngIf="!CropImage"></app-canvas-draw>
+
+
+  <!--------------------- CROP IMAGE ---------------------->
+  <div *ngIf="CropImage">
+    <ion-card>
+      <!-- <ion-button expand="full" (click)="captureImage()">
+        Capture Image
+      </ion-button> -->
+      <image-cropper
+      [imageURL]="myImage"
+      [maintainAspectRatio]="true"
+      [aspectRatio]="1/1"
+      format="png"
+      [roundCropper]="true"
+      (imageCropped)="imageCropped($event)">
+      </image-cropper>
+  
+    </ion-card>
+  
+    <ion-button (click)=Distribution()>
+      Calculate Distribution
+    </ion-button>
+  </div>
+  
+  <!------------------------- PLOT ----------------------------->
+  <!-- <canvas id="myChart" width="400" height="400"></canvas> -->
+  <ion-card>
+    <div class="chart-container">
+      <canvas id="chart_1"></canvas>
+    </div>
+  </ion-card>
+  <ion-card>
+    <div *ngIf="ExistsChart">
+      FWHM_Y: {{this.FWHM_Y}}
+      w_Y: {{this.w_Y}}
+      mu_Y: {{this.mu_Y}}
+      <!-- yc_Y: {{this.yc_Y}} -->
+      A_Y: {{this.A_Y}}
+    </div>
+  </ion-card>
+  <ion-card>
+    <div class="chart-container">
+      <canvas id="chart_2"></canvas>
+    </div>
+  </ion-card>
+  <ion-card *ngIf="ExistsChart">
+    <div>
+      FWHM_X: {{this.FWHM_Y}}
+      w_X: {{this.w_X}}
+      mu_X: {{this.mu_X}}
+      <!-- yc_X: {{this.yc_X}} -->
+      A_X: {{this.A_X}}
+    </div>
+  </ion-card>
+  
+  
+
+  <!-- <canvas baseChart *ngIf="ExistsChart"
+  [datasets]="chartData" 
+  [chartType]="chartType">
+  </canvas> -->
+  <!-- [labels]="chartLabels" -->
+  <!-- [options]="chartOptions" 
+  [colors]="chartColors"
+  [legend]="showLegend"  -->
 
 
 </ion-content>
+
+
+<!-- <ion-button (click)="resetImage()">Reset image</ion-button>
+<ion-button (click)="zoomOut()">Zoom -</ion-button>
+<ion-button (click)="zoomIn()">Zoom +</ion-button> -->
+
+<!-- <ion-content>
+
+  <ion-button expand="full" (click)="captureImage()">
+    Capture Image
+  </ion-button>
+
+  <image-cropper
+    [imageURL]="myImage"
+    [maintainAspectRatio]="true"
+    [aspectRatio]="1/1"
+    format="png"
+    (imageCropped)="imageCropped($event)">
+  </image-cropper>
+
+  <ion-card *ngIf="croppedImage">
+    <ion-card-header>
+      <ion-card-title>Cropped Image</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <img [src]="croppedImage">
+    </ion-card-content>
+  </ion-card>
+
+
+</ion-content> -->
+

@@ -1,33 +1,22 @@
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
-    </ion-buttons>
-    <ion-title>
-      Scanner
-    </ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<canvas #imageCanvas (touchstart)="startDrawing($event)"
-                       (touchend)="endDrawing()">
-</canvas>
 
 <!-- <canvas id="canvas" (touchstart)="startDrawing($event)"
                     (touchend)="endDrawing()">
 </canvas> -->
 
-
-<ion-button expand="full" (click)="setBackground()">
-  <ion-icon slot="start" name="image"></ion-icon>
-  Load selected image
-</ion-button>
-
+<canvas #imageCanvas (touchstart)="startDrawing($event)"
+                       (touchend)="endDrawing()">
+</canvas>
 
 <ion-content [forceOverscroll]="false">
 
+  
+  <ion-button (click)="setBackground()">
+    <ion-icon slot="start" name="image"></ion-icon>
+    Reload image
+  </ion-button>
+  
     
-  <ion-grid>
+  <!-- <ion-grid>
     <ion-row>
       <ion-col>
         <ion-button expand="full" size="small" (click)="SetOrigincoord()">
@@ -94,20 +83,20 @@
         </ion-button>
       </ion-col>
     </ion-row>
-  </ion-grid>
-
+  </ion-grid> -->
+  &nbsp;
   <div>
-    <strong>Pixel:</strong> {{this.saveX}}, {{this.saveY}}
+    &nbsp;<strong>Pixel:</strong> {{this.saveX}}, {{this.saveY}}
   </div>
-
+  
   <div>
-    <strong>RGBA:</strong> {{this.rgba}}
+    &nbsp;<strong>RGBA:</strong> {{this.rgba}}
   </div>
-  <p></p>
-  <div>
+  <!-- <div>
     <strong>Distance: </strong> {{distance}}
   </div>
-  <p></p>
-
+  <p></p> -->
+  <p>finn1</p>
 </ion-content>
+
 
