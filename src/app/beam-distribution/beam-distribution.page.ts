@@ -57,15 +57,15 @@ export class BeamDistributionPage implements OnInit {
   /////// Plot
   // PlotDataRGB;
   // PlotDataRG;
-  ExistsChart = false
-  private InvestmentChart: Chart;
+  ExistsChart = false;
+  private Chart: Chart;
   FWHM_Y:number;
-  w_Y:number;
+  sigma_Y:number;
   mu_Y:number;
   yc_Y:number;
   A_Y:number;
   FWHM_X:number;
-  w_X:number;
+  sigma_X:number;
   mu_X:number;
   yc_X:number;
   A_X:number;
@@ -218,18 +218,18 @@ export class BeamDistributionPage implements OnInit {
     let Gaussian_Y = this.PrepareDataForPlot(Gaussian_Y_PrePlot[0], Gaussian_Y_PrePlot[1]);
     console.log('Gaussian_Y:', Gaussian_Y_PrePlot);
     Dataset_Y = [{
-      label: 'Y Width. RGB Mean. Dose (Gy) vs Distance (cm)',
+      label: 'Y Width. RGB Mean. Dose (Gy) vs Distance (mm)',
       data: PlotDataRGB_Y,
       fill:  true,
       backgroundColor: 'rgba(31, 119, 180, 1)',
     }, {
-      label: 'Y Width..Gaussian RGB Mean. Dose (Gy) vs Distance (cm)',
+      label: 'Y Width. Gaussian RGB Mean. Dose (Gy) vs Distance (mm)',
       data: Gaussian_Y,
       fill:  true,
       backgroundColor: 'rgba(255, 127, 14, 1)',
     }];
     this.FWHM_Y = Gaussian_Y_PrePlot[2][4];
-    this.w_Y = Gaussian_Y_PrePlot[2][1];
+    this.sigma_Y = Gaussian_Y_PrePlot[2][1];
     this.mu_Y = Gaussian_Y_PrePlot[2][2];
     this.yc_Y = Gaussian_Y_PrePlot[2][0];
     this.A_Y = Gaussian_Y_PrePlot[2][3];
@@ -242,30 +242,44 @@ export class BeamDistributionPage implements OnInit {
     let Gaussian_X = this.PrepareDataForPlot(Gaussian_X_PrePlot[0], Gaussian_X_PrePlot[1]);
     console.log('Gaussian_X:', Gaussian_X);
     Dataset_X = [{
-      label: 'X Width. RGB Mean. Dose (Gy) vs Distance (cm)',
+      label: 'X Width. RGB Mean. Dose (Gy) vs Distance (mm)',
       data: PlotDataRGB_X,
       fill:  true,
       backgroundColor: 'rgba(31, 119, 180, 1)',
     }, {
-      label: 'X Width..Gaussian RGB Mean. Dose (Gy) vs Distance (cm)',
+      label: 'X Width. Gaussian RGB Mean. Dose (Gy) vs Distance (mm)',
       data: Gaussian_X,
       fill:  true,
       backgroundColor: 'rgba(255, 127, 14, 1)',
     }];
     this.FWHM_X = Gaussian_X_PrePlot[2][4];
-    this.w_X = Gaussian_X_PrePlot[2][1];
+    this.sigma_X = Gaussian_X_PrePlot[2][1];
     this.mu_X = Gaussian_X_PrePlot[2][2];
     this.yc_X = Gaussian_X_PrePlot[2][0];
     this.A_X = Gaussian_X_PrePlot[2][3];
     
-
+    
     console.log('PLOT');
-    this.Plot('chart_1', Dataset_Y);
-    this.Plot('chart_2', Dataset_X);
+    // console.log('this.ExistsChart:', this.ExistsChart);
+    // this.DestroyPlot(this.Chart);
+    // this.DestroyPlot(this.Chart);
+    // console.log('this.ExistsChart:', this.ExistsChart);
+
+    console.log('PLOT 1');
+    this.Plot(this.Chart,'chart_1', Dataset_Y);
+    // console.log('this.ExistsChart:', this.ExistsChart);
+    // console.log(' typeof this.Chart[0]:', typeof this.Chart);
+    // console.log('this.Chart[0]:',this.Chart);
+
+    console.log('PLOT 2');
+    this.Plot(this.Chart,'chart_2', Dataset_X);
+    // console.log('this.ExistsChart:', this.ExistsChart);
+    // console.log(' typeof this.Chart[0]:', typeof this.Chart);
+    // console.log('this.Chart[0]:',this.Chart);
     // this.Plot('chart_1', PlotDataRGB_Y, 'rgba(31, 119, 180, 1)');
     // this.Plot('chart_2', PlotDataRGB_X, 'rgba(255, 127, 14, 1)');
     // this.Plot('chart_2', Gaussian_Y, 'rgba(255, 127, 14, 1)');
-
+    
   }
 
   SetUpDataDistribution(croppedPixels: ImageCroppedEvent, calibration: Calibration) {
@@ -326,52 +340,6 @@ export class BeamDistributionPage implements OnInit {
   }
 
 
-  // Distribution() {
-  //   this.SetUpDataDistribution(this.selectedImage, this.SelectedCalibration);
-  // }
-
-  // SetUpDataDistribution(croppedPixels: ImageCroppedEvent, calibration: Calibration) {
-
-  //   // Esquina superir izquierda y esquina inferior derecha de la seleccion, [[x1,y1], [x2,y2]]
-  //   let points = this.beamDistributionService.ResizedPixels(croppedPixels.imagePosition);
-  //   let Square_Width = Math.abs(points[0][0] - points[1][0]);
-  //   let Square_Height = Math.abs(points[0][1] - points[1][1]);
-  //   let imgData = this.rgbavaluesService.imageData;
-  //   // console.log('Square_Width:', Square_Width);
-  //   // console.log('Square_Height:', Square_Height);
-  //   // console.log('imgData BEAM:', imgData);
-
-  //   let PlotDataY = this.BeamWidht('vertical', imgData, calibration, points, Square_Width, Square_Height);
-  //   this.Plot('chart_1', PlotDataY[0], 'rgba(31, 119, 180, 1)');
-  //   let PlotDataX = this.BeamWidht('horizontal', imgData, calibration, points, Square_Width, Square_Height);
-  //   this.Plot('chart_2', PlotDataX[0], 'rgba(255, 127, 14, 1)');
-  //   return [PlotDataY, PlotDataX]
-  // }
-
-  // BeamWidht(orientation = 'vertial' || 'horizontal', imgData, calibration: Calibration, points: number[][], Square_Width, Square_Height) {
-
-  //   let dataX: number[];
-  //   let dataY:number [][][];
-  //   if (orientation == 'vertical') {
-
-  //     dataX = this.DataForFittingX([ points[0][0] + Math.trunc(Square_Width/2), points[0][1] ], [ points[0][0] + Math.trunc(Square_Width/2), points[1][1] ], Square_Height);
-  //     dataY = this.rgbavaluesService.circlePixelsNearby(imgData, points[0][0], points[0][1], Square_Width, Square_Height, 'vertical');
-  //   } else {
-
-  //     dataX = this.DataForFittingX([ points[0][0], points[0][1] + Math.trunc(Square_Height/2) ], [ points[1][0], points[0][1] + Math.trunc(Square_Height/2)  ], Square_Width);
-  //     dataY = this.rgbavaluesService.circlePixelsNearby(imgData, points[0][1], points[0][0], Square_Height, Square_Width,'horizontal');
-  //   }
-   
-  //   let [DoseY_RGB, DoseY_RG] = this.DataForFittingY(dataY, calibration);
-  //   let PlotDataRGB = this.PrepareDataForPlot(dataX, DoseY_RGB);
-  //   let PlotDataRG = this.PrepareDataForPlot(dataX, DoseY_RG);
-  //   return [PlotDataRGB, PlotDataRG]
-  // }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
   // VerticalBeamWidht(imgData, calibration: Calibration, points: number[][], Square_Width, Square_Height) {
 
@@ -410,7 +378,8 @@ export class BeamDistributionPage implements OnInit {
   }
 
   DataForFittingY(dataY, calibration: Calibration) {
-
+    // Calculate the dose for the rgb values from dataY
+    
     let dataY_R: number[][] = dataY[0];
     let dataY_G: number[][] = dataY[1];
     let dataY_B: number[][] = dataY[2];
@@ -457,7 +426,7 @@ export class BeamDistributionPage implements OnInit {
   }
 
   PrepareDataForPlot(X_Axis: number[], Y_Axis: number[]) {
-    this.ExistsChart = true;
+
     let DataPlot = []
     for (let i = 0; i < X_Axis.length; i++) {
       DataPlot[i] = {
@@ -468,12 +437,49 @@ export class BeamDistributionPage implements OnInit {
     return DataPlot
   }
 
-  Plot(context: string, DataSet) {
-    
+  DestroyPlot(chart: Chart) {
+
+    console.log('this.ExistsChart:', this.ExistsChart);
+    console.log('chart:',chart);
+    if (this.ExistsChart == true) {
+      console.log('typeof chart:',typeof chart);
+      console.log('chart:',chart);
+      chart.destroy();
+      // this.InvestmentChart = null;
+      console.log('typeof chart:',typeof chart);
+      console.log('chart:',chart);
+      this.ExistsChart = false;
+    }
+  }
+
+  // resetCanvas(){
+  //   ('chart-1').remove(); // this is my <canvas> element
+  //   $('#graph-container').append('<canvas id="results-graph"><canvas>');
+  //   canvas = document.querySelector('#results-graph');
+  //   ctx = canvas.getContext('2d');
+  //   ctx.canvas.width = $('#graph').width(); // resize to parent width
+  //   ctx.canvas.height = $('#graph').height(); // resize to parent height
+  //   var x = canvas.width/2;
+  //   var y = canvas.height/2;
+  //   ctx.font = '10pt Verdana';
+  //   ctx.textAlign = 'center';
+  //   ctx.fillText('This text is centered on the canvas', x, y);
+  // };
+
+  Plot(chartTarget: Chart, context: string, DataSet) {
+
+    // console.log('1111111111111',typeof this.InvestmentChart);
+    // if (typeof this.InvestmentChart == 'object') {
+    //   console.log('1111111111111',typeof this.InvestmentChart);
+    //   this.InvestmentChart.destroy()
+    //   console.log('1111111111111',typeof this.InvestmentChart);
+    // }
+    // console.log('1111111111111',typeof this.InvestmentChart);
     // const ctx = document.getElementById('investment-charts');
     // const ctx = $('#myChart');
+    this.ExistsChart = true;
     const ctx = context;
-    this.InvestmentChart = new Chart(ctx, {
+    chartTarget = new Chart(ctx, {
       type: 'scatter',
       data: {
         datasets: DataSet,
@@ -497,99 +503,13 @@ export class BeamDistributionPage implements OnInit {
         }
       }
     });
-  
-
-  // Plot(context: string, Data1, color: string) {
     
-  //   // const ctx = document.getElementById('investment-charts');
-  //   // const ctx = $('#myChart');
-  //   const ctx = context;
-  //   this.InvestmentChart = new Chart(ctx, {
-  //     type: 'scatter',
-  //     data: {
-  //       datasets: [{
-  //           label: 'RGB Mean. Dose (Gy) vs Distance (cm)',
-  //           data: Data1,
-  //           fill:  true,
-  //           // borderColor: 'rgba(255, 0, 0, 1)',
-  //           backgroundColor: color,
-  //           // borderWidth:1,
-  //           // borderCapStyle: 'butt'
-  //       },
-  //       // {
-  //       //   label: 'RG Mean. Dose (Gy) vs Distance (cm)',
-  //       //   data: Data2,
-  //       //   fill:  true,
-  //       //   // borderColor: 'rgba(255, 0, 0, 1)',
-  //       //   backgroundColor: 'rgba(255, 127, 14, 1)',
-  //       //   // borderWidth:1,
-  //       //   borderCapStyle: 'butt'
-  //       // }
-  //     ],
-  //     },
-  //     options: {
-  //       scales: {
-  //         yAxes: [{
-  //           display: true,
-  //           // stacked: true,
-  //           labels: ['Doses (Gy)'],
-  //           type: 'linear',
-  //           position: 'bottom'
-  //         }],
-  //         xAxes: [{
-  //           display: true,
-  //           type: 'linear',
-  //           position: 'bottom',
-  //           // stacked: true,
-  //           labels: ['Distance (cm)']
-  //         }]
-  //       }
-  //     }
-  //   });
-    // this.InvestmentChart = new Chart(ctx, {
-    //   type: 'line',
-    //   data: {
-    //     datasets: [{
-    //         label: 'Gaussian RGB Mean. Dose (Gy) vs Distance (cm)',
-    //         data: Data1,
-    //         fill:  true,
-    //         // borderColor: 'rgba(255, 0, 0, 1)',
-    //         backgroundColor: color,
-    //         // borderWidth:1,
-    //         // borderCapStyle: 'butt'
-    //     },
-    //     // {
-    //     //   label: 'RG Mean. Dose (Gy) vs Distance (cm)',
-    //     //   data: Data2,
-    //     //   fill:  true,
-    //     //   // borderColor: 'rgba(255, 0, 0, 1)',
-    //     //   backgroundColor: 'rgba(255, 127, 14, 1)',
-    //     //   // borderWidth:1,
-    //     //   borderCapStyle: 'butt'
-    //     // }
-    //   ],
-    //   },
-    //   options: {
-    //     scales: {
-    //       yAxes: [{
-    //         display: true,
-    //         // stacked: true,
-    //         labels: ['Doses (Gy)'],
-    //         type: 'linear',
-    //         position: 'bottom'
-    //       }],
-    //       xAxes: [{
-    //         display: true,
-    //         type: 'linear',
-    //         position: 'bottom',
-    //         // stacked: true,
-    //         labels: ['Distance (cm)']
-    //       }]
-    //     }
-    //   }
-    // });
+    // console.log('22222222222222222',typeof chart);
+
     
   }
+
+  
 
   
 

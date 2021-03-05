@@ -37,6 +37,11 @@
 
   <!--------------------- DISTANCIAS --------------------->
   <ion-card *ngIf="CalculatingDistance">
+    <p></p>
+    &nbsp;&nbsp;&nbsp;<strong>
+      X axis must be 1 cm.
+      &nbsp;Y axis must be 2 cm.
+    </strong>
     <ion-grid>
       <ion-row>
         <ion-col>
@@ -48,7 +53,7 @@
         <ion-col>
           <div>
             <p></p>
-            <strong>Origin:</strong> {{this.coords0}}
+            &nbsp;&nbsp;&nbsp;<strong>Origin:</strong> {{this.coords0}}
           </div>
         </ion-col>
       </ion-row>
@@ -63,7 +68,7 @@
         <ion-col>
           <div>
             <p></p>
-            <strong>X Axis:</strong> {{this.coordsX}}
+            &nbsp;&nbsp;&nbsp;<strong>X Axis:</strong> {{this.coordsX}}
           </div>
         </ion-col>
       </ion-row>
@@ -78,7 +83,7 @@
         <ion-col>
           <div>
             <p></p>
-            <strong>Y Axis:</strong> {{coordsY}}
+            &nbsp;&nbsp;&nbsp;<strong>Y Axis:</strong> {{coordsY}}
           </div>
         </ion-col>
       </ion-row>
@@ -104,6 +109,7 @@
           <ion-button expand="full" size="small" (click)="SetZero()">
             Set Zero
           </ion-button>
+          <p></p>
           <div>
             <strong>Zero points:</strong> {{this.ZeroLength}}
           </div>
@@ -157,22 +163,29 @@
     <ion-button (click)=Distribution()>
       Calculate Distribution
     </ion-button>
+    <p></p>
+
   </div>
   
   <!------------------------- PLOT ----------------------------->
   <!-- <canvas id="myChart" width="400" height="400"></canvas> -->
+  <div *ngIf="ExistsChart"> 
+    &nbsp;&nbsp;&nbsp; y = y<sub>0</sub> + ( A/(2&sigma;&radic;<span style="text-decoration: overline">&pi;/2</span>) )*exp( -2*( (x-&mu;)/2&sigma; )<sup>2</sup> )
+  </div>
   <ion-card>
     <div class="chart-container">
       <canvas id="chart_1"></canvas>
     </div>
   </ion-card>
   <ion-card>
-    <div *ngIf="ExistsChart">
-      FWHM_Y: {{this.FWHM_Y}}
-      w_Y: {{this.w_Y}}
-      mu_Y: {{this.mu_Y}}
-      <!-- yc_Y: {{this.yc_Y}} -->
-      A_Y: {{this.A_Y}}
+    <div *ngIf="ExistsChart"> 
+      &nbsp;<strong>
+        FWHM<sub>Y</sub>: {{this.FWHM_Y}} &nbsp;
+        &sigma;<sub>Y</sub>: {{this.sigma_Y}} &nbsp;
+        &mu;<sub>Y</sub>: {{this.mu_Y}} &nbsp;
+        y<sub>C</sub><sub>Y</sub>: {{this.yc_Y}} &nbsp; <br>
+        &nbsp;&nbsp;A<sub>Y</sub>: {{this.A_Y}} 
+      </strong>
     </div>
   </ion-card>
   <ion-card>
@@ -182,11 +195,13 @@
   </ion-card>
   <ion-card *ngIf="ExistsChart">
     <div>
-      FWHM_X: {{this.FWHM_Y}}
-      w_X: {{this.w_X}}
-      mu_X: {{this.mu_X}}
-      <!-- yc_X: {{this.yc_X}} -->
-      A_X: {{this.A_X}}
+      &nbsp;<strong>
+        FWHM<sub>X</sub>: {{this.FWHM_Y}} &nbsp;
+        &sigma;<sub>X</sub>: {{this.sigma_X}} &nbsp;
+        &mu;<sub>X</sub>: {{this.mu_X}} &nbsp;
+        y<sub>C</sub><sub>X</sub>: {{this.yc_X}} &nbsp; <br>
+        &nbsp;&nbsp;A<sub>X</sub>: {{this.A_X}}
+      </strong>
     </div>
   </ion-card>
   
