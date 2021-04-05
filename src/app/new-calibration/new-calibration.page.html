@@ -1,8 +1,8 @@
-<ion-header>
+<ion-header class="header">
   <ion-toolbar>
 
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/tab4"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/tab3/Dosimetry"></ion-back-button>
     </ion-buttons>
 
     <ion-title>
@@ -14,16 +14,16 @@
 
 <ion-content>
 
-  <ion-list lines="full" class="ion-no-margin">
+  <ion-list lines="full">
 
-    <ion-item>
+    <ion-item class="ion-no-margin">
       <ion-label position="floating">Name</ion-label>
 
       <ion-input placeholder="Inster calibration name" type="text" [(ngModel)]="newCalibration.name"></ion-input>
     </ion-item>
 
     <ion-list>
-      <ion-item>
+      <ion-item class="ion-no-margin">
         <ion-label>Film Type</ion-label>
         
         <ion-select interface="popover" placeholder="Select type"  [(ngModel)]="newCalibration.type">
@@ -34,7 +34,7 @@
 
 
     <ion-list>
-      <ion-item>
+      <ion-item class="ion-no-margin">
         <ion-label>Calibration Formula</ion-label>
 
         <ion-select interface="popover" placeholder="Select formula" [(ngModel)]="newCalibration.formula">
@@ -42,15 +42,37 @@
           <ion-select-option *ngFor="let formula of CalibrationFormula.formula">{{formula}}</ion-select-option>
         </ion-select>
       </ion-item>
-      <h6 style="margin-left: 1.25em;border-width: 2px;"
-          *ngFor="let expresion of CalibrationFormula.expresion">{{expresion}}</h6>
+      <!-- <h6 style="margin-left: 1.25em;border-width: 2px;"
+          *ngFor="let expresion of CalibrationFormula.expresion">{{expresion}}</h6> -->
       <!-- <div>{{expr}}</div> -->
+      <div>
+        <br>
+        <span style="padding-left:20px">
+          <strong>Rational:</strong>
+        </span><br><br>
+        <span style="padding-left:25px">
+          PV(D) = b / (D-c) + a
+        </span><br><br>
+        <span style="padding-left:20px">
+          <strong>Optical density:</strong>
+        </span><br><br>
+        <span style="padding-left:25px">
+          OD(D) = (a*D + b) / (c + D); OD = - log10( PV )
+        </span><br><br>
+        <span style="padding-left:20px">
+          <strong>Net optical density:</strong>
+        </span><br><br>
+        <span style="padding-left:25px">
+          netOD(D) = a*D + b*D^c; netOD = log10( PV0/PV )
+        </span>
+      </div>
+
     </ion-list>
 
     <!-- PARAMETERS -->
-    <ion-list-header>
+    <ion-list-header class="uppar_item">
       <ion-label>
-        Parameters:
+        <strong>Parameters:</strong>
       </ion-label>
     </ion-list-header>
 
@@ -61,19 +83,19 @@
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             Red
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             Green
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             Blue
           </ion-item>
         </ion-col>
@@ -82,25 +104,25 @@
       <!-- Parametro A -->
       <ion-row>
         <ion-col>
-          <ion-item>
-            a:
+          <ion-item class="par_item">
+            a
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>         
+          <ion-item class="par_item">         
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.red_param[0]"></ion-input>
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.green_param[0]"></ion-input>
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.blue_param[0]"></ion-input>
           </ion-item>
         </ion-col>
@@ -109,25 +131,25 @@
       <!-- Parametro B -->
       <ion-row>
         <ion-col>
-          <ion-item>
-            b:
+          <ion-item class="par_item">
+            b
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.red_param[1]"></ion-input>
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.green_param[1]"></ion-input>
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.blue_param[1]"></ion-input>
           </ion-item>
         </ion-col>
@@ -136,25 +158,25 @@
       <!-- Parametro C -->
       <ion-row>
         <ion-col>
-          <ion-item>
-            c:
+          <ion-item class="par_item">
+            c
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.red_param[2]"></ion-input>
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.green_param[2]"></ion-input>
           </ion-item>
         </ion-col>
 
         <ion-col>
-          <ion-item>
+          <ion-item class="par_item">
             <ion-input placeholder="parameter" type="number" inputmode="numeric" inputmode="decimal" [(ngModel)]="newCalibration.blue_param[2]"></ion-input>
           </ion-item>
         </ion-col>

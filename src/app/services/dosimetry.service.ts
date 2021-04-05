@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Calibration } from '../models/calibration.interface';
-
+import { Pixel } from '../models/pixel.interface';
 import { Plugins } from '@capacitor/core';
+import { BeamDistributionService } from '../services/beamdistribution.service';
 
 const { Storage } = Plugins;
 
@@ -23,7 +24,8 @@ export class DosimetryService {
   private calibration: Calibration[] = [];
   private CALIBRATION_STORAGE = 'calibrations';
 
-  constructor(platform: Platform) {
+  constructor(platform: Platform,
+              private beamDistributionService: BeamDistributionService) {
     this.platform = platform;
   }
 
@@ -76,78 +78,112 @@ export class DosimetryService {
   //////////////////// DOSIS CALCULUS ////////////////////////
 
 
-  // CalculateDosis(ExistsZero: boolean, RGBPoint: number[], SelectedCalibration: Calibration, zero?: [number[], number[], number[]]) {
+  CalculateDose(ExistsZero: boolean, RGBPoint: number[], SelectedCalibration: Calibration, zero?: [number[], number[], number[]]) {
 
+    //  Calcular la dosis de cada punto del zero con la racional y luego la media de todas las dosis
 
-  //    Calcular la dosis de cada punto del zero con la racional y luego la media de todas las dosis
+    try {
 
+      let PixelDoseChannel: number[] = [];
 
-  //   try {
+      if (ExistsZero == false ) {
 
-  //     let PixelDoseChannel: number[] =[];
+        // console.log('no hay zero');
+        /////////// Dosis del pixel seleccionado
+        PixelDoseChannel = this.DosisPerChannel(SelectedCalibration,RGBPoint);
 
-  //     if (ExistsZero == false ) {
+      } else {
 
-  //       console.log('no hay zero')
+        // console.log('hay zero');
 
-  //       /////////// Dosis del pixel seleccionado
-  //       let DoseChannel = this.DosisPerChannel(SelectedCalibration,RGBPoint);
+        /////////// Dosis del zero
+        // let ZeroDose: number[] = [];
+        let ZeroDosePerChannel_R: number[] = [];
+        let ZeroDosePerChannel_G: number[] = [];
+        let ZeroDosePerChannel_B : number[] = [];
+        let TotalZeroDose: number[] = [];
+        let TotalZero_RGBvalue: number[] = [];
 
-  //       // // Redondea a 3 decimales la dosis de cada canal
-  //       // let round: number[] = [] 
-  //       // for (let i = 0; i < DoseChannel.length; i++) {
-  //       //   round[i] = +DoseChannel[i].toFixed(3);
-  //       // }
-  //       /////////////// Dosis de cada canal
-  //       PixelDoseChannel = this.RoundArray(DoseChannel,3);
+        // Dosis de cada pixel del zero
+        // se añade al vector ZeroDose para calcular la media de todos los valores
+        if (SelectedCalibration.formula == 'Rational') {
 
-  //     } else {
+          for (let pixel = 0; pixel < zero[0].length; pixel++) {
 
-  //       console.log('hay zero') 
+            ZeroDosePerChannel_R[pixel] = this.RationalEquation(zero[0][pixel], SelectedCalibration.red_param);
+            ZeroDosePerChannel_G[pixel] = this.RationalEquation(zero[1][pixel], SelectedCalibration.green_param);
+            ZeroDosePerChannel_B[pixel] = this.RationalEquation(zero[2][pixel], SelectedCalibration.blue_param);
+          }
+          // Zero mean dose for the values R, G and B
+          TotalZeroDose = [ this.ArrayMean(ZeroDosePerChannel_R), 
+                            this.ArrayMean(ZeroDosePerChannel_G), 
+                            this.ArrayMean(ZeroDosePerChannel_B)
+          ];
+          TotalZero_RGBvalue = [this.RationalEquation_RGBvalue(TotalZeroDose[0], SelectedCalibration.red_param), 
+                                this.RationalEquation_RGBvalue(TotalZeroDose[1], SelectedCalibration.green_param), 
+                                this.RationalEquation_RGBvalue(TotalZeroDose[2], SelectedCalibration.blue_param)
+          ];
 
-  //       /////////// Media de los valores RGB del zero, [red, green, blue]
-  //       let MeanZero: number[]=[]; 
-  //       MeanZero = [this.ArrayMean(zero[0]),
-  //                   this.ArrayMean(zero[1]),
-  //                   this.ArrayMean(zero[2])
-  //       ];
-  //       console.log('MeanZero:', MeanZero)
+        } else if (SelectedCalibration.formula == 'Optical Density') {
 
-  //       /////////// Dosis del pixel seleccionado
-  //       let DoseChannel = this.DosisPerChannel(SelectedCalibration, RGBPoint, MeanZero);
+          for (let pixel = 0; pixel < zero[0].length; pixel++) {
 
-  //       //////////// Dosis del zero
-  //       let ZeroDose: number[]=[]; 
-  //       ZeroDose = this.DosisPerChannel(SelectedCalibration, MeanZero, MeanZero);
+            ZeroDosePerChannel_R[pixel] = this.OpticalEquation(zero[0][pixel], SelectedCalibration.red_param);
+            ZeroDosePerChannel_G[pixel] = this.OpticalEquation(zero[1][pixel], SelectedCalibration.green_param);
+            ZeroDosePerChannel_B[pixel] = this.OpticalEquation(zero[2][pixel], SelectedCalibration.blue_param);
+          }
+          // Zero mean dose for the values R, G and B
+          TotalZeroDose = [ this.ArrayMean(ZeroDosePerChannel_R), 
+                            this.ArrayMean(ZeroDosePerChannel_G), 
+                            this.ArrayMean(ZeroDosePerChannel_B)
+          ];
+          TotalZero_RGBvalue = [this.OpticalEquation_RGBvalue(TotalZeroDose[0], SelectedCalibration.red_param), 
+                                this.OpticalEquation_RGBvalue(TotalZeroDose[1], SelectedCalibration.green_param), 
+                                this.OpticalEquation_RGBvalue(TotalZeroDose[2], SelectedCalibration.blue_param)
+          ];
 
-  //       ///////////// Resta la dosis del zero a la dosis del punto seleccionado y lo redondea a 3 decimales
-  //       let substract: number[]=[];
-  //       for (let i=0; i< ZeroDose.length; i++) {
+        } else if (SelectedCalibration.formula == 'Net Optical Density') {
 
-  //         substract[i] = +(DoseChannel[i] - ZeroDose[i]).toFixed(3);
-  //         console.log('DoseChannel',DoseChannel[i]);
-  //         console.log('ZeroDose',ZeroDose[i]);
-  //         console.log('PixelDoseChannel',substract[i]);
-  //       }
+          TotalZero_RGBvalue = [this.ArrayMean(zero[0]),
+                                this.ArrayMean(zero[1]),
+                                this.ArrayMean(zero[2])
+          ];
+          // console.log('TotalZero_RGBvalue:', TotalZero_RGBvalue);
+        }
 
-  //       /////////////// Dosis de cada canal
-  //       PixelDoseChannel = substract;
+        
+        /////////// Dosis del pixel seleccionado
+        let DoseChannel: number[] = this.DosisPerChannel(SelectedCalibration, RGBPoint, TotalZero_RGBvalue);
+        // console.log('DoseChannel:', DoseChannel);
+        if (SelectedCalibration.formula == 'Rational' || SelectedCalibration.formula == 'Optical Density') {
 
-  //     }
+          for (let i = 0; i < 3; i++) {
 
-  //     // this.PixelPoint =  this.dosimetryService.saveXY;
-  //     // console.log('PixelPoint',this.PixelPoint);
-  //     // console.log('RGBPoint',this.RGBPoint);
-  //     // console.log('selected:',this.SelectedCalibration);
+            PixelDoseChannel[i] = DoseChannel[i] - TotalZeroDose[i];
+          }   
+        } else {
 
-  //     ////////////// Calcula la dosis total del pixel a partir de la dosis de cada canal (media RGB, media RG, minimos cuadrados, etc)
-  //     [this.RGB_MeanDose, this.RG_MeanDose] = this.TotalDoses(PixelDoseChannel);
+          // console.log('DoseChannel:', DoseChannel);
+          PixelDoseChannel = DoseChannel;
+        }
 
+      }
 
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
+      // this.PixelPoint =  this.dosimetryService.saveXY;
+      // console.log('PixelPoint',this.PixelPoint);
+      // console.log('RGBPoint',this.RGBPoint);
+      // console.log('selected:',this.SelectedCalibration);
+
+      ////////////// Calcula la dosis total del pixel a partir de la dosis de cada canal (media RGB, media RG, minimos cuadrados, etc)
+      [this.RGB_MeanDose, this.RG_MeanDose] = this.TotalDoses(PixelDoseChannel);
+      PixelDoseChannel = this.RoundArray(PixelDoseChannel, 3);
+
+      return [PixelDoseChannel, [this.RGB_MeanDose, this.RG_MeanDose]]
+
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
 
   DosisPerChannel(SavedCalibration: Calibration, RGB: number[], zeroRGB?: number[]) {
@@ -166,38 +202,47 @@ export class DosimetryService {
                             this.RationalEquation(RGB[1], SavedCalibration.green_param),
                             this.RationalEquation(RGB[2], SavedCalibration.blue_param)
       ];
-      // console.log('Dose per channel:', this.Dose_channel)
+      // console.log('Dose per channel:', this.Dose_channel);
 
     } else if (SavedCalibration.formula == 'Optical Density') {
 
-      console.log('Optical Density')
+      // console.log('Optical Density');
 
       this.Dose_channel = [ this.OpticalEquation(RGB[0], SavedCalibration.red_param),
                             this.OpticalEquation(RGB[1], SavedCalibration.green_param),
                             this.OpticalEquation(RGB[2], SavedCalibration.blue_param)
       ];
-      console.log('Dose per channel:', this.Dose_channel)
+      // console.log('Dose per channel:', this.Dose_channel)
 
     } else if (zeroRGB && SavedCalibration.formula == 'Net Optical Density') {
       
-      console.log('Net Optical Density')
+      // console.log('Net Optical Density');
 
-      //////// el parametro inical del método de Newton-Raphson, x0, es la dosis calculada con la formula racional
-      let x0: number[] = [this.RationalEquation(RGB[0], SavedCalibration.red_param),
-                          this.RationalEquation(RGB[1], SavedCalibration.green_param),
-                          this.RationalEquation(RGB[2], SavedCalibration.blue_param)
-      ];
-      console.log('x0 netOD:',x0)
+      // //////// el parametro inical del método de Newton-Raphson, x0, es la dosis calculada con la formula racional
+      // let x0: number[] = [this.RationalEquation(RGB[0], SavedCalibration.red_param),
+      //                     this.RationalEquation(RGB[1], SavedCalibration.green_param),
+      //                     this.RationalEquation(RGB[2], SavedCalibration.blue_param)
+      // ];
+      // // console.log('x0 netOD:',x0);
 
-      let tol = 0.0001; // Precision del calculo
-      this.Dose_channel = [ this.NewtonRaphsonMethod(x0[0], tol, this.NetOpticalDensity, RGB[0], zeroRGB[0], SavedCalibration.red_param),
-                            this.NewtonRaphsonMethod(x0[1], tol, this.NetOpticalDensity, RGB[1], zeroRGB[1], SavedCalibration.green_param),
-                            this.NewtonRaphsonMethod(x0[2], tol, this.NetOpticalDensity, RGB[2], zeroRGB[2], SavedCalibration.blue_param)
+      // let tol = 0.001; // Precision del calculo
+      // this.Dose_channel = [ this.NewtonRaphsonMethod(x0[0], tol, this.NetOpticalDensity, RGB[0], zeroRGB[0], SavedCalibration.red_param),
+      //                       this.NewtonRaphsonMethod(x0[1], tol, this.NetOpticalDensity, RGB[1], zeroRGB[1], SavedCalibration.green_param),
+      //                       this.NewtonRaphsonMethod(x0[2], tol, this.NetOpticalDensity, RGB[2], zeroRGB[2], SavedCalibration.blue_param)
+      // ];
+      // // console.log('Dose per channel:', this.Dose_channel);
+
+      // ----------------------------------
+      let tol = 0.001; // Precision del calculo
+      this.Dose_channel = [ this.BolzanoMethod(tol, this.NetOpticalDensity, RGB[0], zeroRGB[0], SavedCalibration.red_param),
+                            this.BolzanoMethod(tol, this.NetOpticalDensity, RGB[1], zeroRGB[1], SavedCalibration.green_param),
+                            this.BolzanoMethod(tol, this.NetOpticalDensity, RGB[2], zeroRGB[2], SavedCalibration.blue_param)
       ];
-      console.log('Dose per channel:', this.Dose_channel)
+      
+      //---------------
 
     } else {
-      console.log('ninguna formula o falta zero')
+      // console.log('ninguna formula o falta cero');
     }
 
     return this.Dose_channel
@@ -206,8 +251,8 @@ export class DosimetryService {
   // Calcula la dosis total del pixel a partir de la dosis de cada canal
   TotalDoses(DosesPerChannel: number[]) {
 
-    this.RGB_MeanDose = +this.ArrayMean(DosesPerChannel).toFixed(3)
-    this.RG_MeanDose = +this.ArrayMean(DosesPerChannel,2).toFixed(3)
+    this.RGB_MeanDose = +this.ArrayMean(DosesPerChannel).toFixed(3);
+    this.RG_MeanDose = +this.ArrayMean(DosesPerChannel,2).toFixed(3);
     // console.log('RGB_MeanDose:', this.RGB_MeanDose,'RG_MeanDose:', this.RG_MeanDose)
     return [this.RGB_MeanDose, this.RG_MeanDose]
   }
@@ -220,17 +265,17 @@ export class DosimetryService {
 
     for (let i=0; i < zero.length; i++) {
 
-      let zeroRGB: number[] = [zero[0][i], zero[1][i], zero[2][i]]
-      let doseZero = this.DosisPerChannel(calibration, zeroRGB, zeroRGB)
-      let dose = this.TotalDoses(doseZero)
-      zeroMeanRGB.push(dose[0])
-      zeroMeanRG.push(dose[1])
+      let zeroRGB: number[] = [zero[0][i], zero[1][i], zero[2][i]];
+      let doseZero = this.DosisPerChannel(calibration, zeroRGB, zeroRGB);
+      let dose = this.TotalDoses(doseZero);
+      zeroMeanRGB.push(dose[0]);
+      zeroMeanRG.push(dose[1]);
     }
     let totalDoseZero = [this.ArrayMean(zeroMeanRGB), this.ArrayMean(zeroMeanRG)];
       
     let DoseWithoutZero: number[];
     for (let i = 0; i < totalDosePixel.length; i++) {
-      DoseWithoutZero[i]= totalDosePixel[i] - totalDoseZero[i]
+      DoseWithoutZero[i]= totalDosePixel[i] - totalDoseZero[i];
     }
 
     return DoseWithoutZero
@@ -242,39 +287,47 @@ export class DosimetryService {
   ////////////////////////// FUNCIONES DE CALIBRACION ///////////////////
 
   RationalEquation(PV: number, Parameters: number[]) {
+    // Calculate the pixel dose with the rational equation
     // a = Parameters[0]
     // b = Parameters[1]
     // c = Parameters[2]
     return Parameters[2] + ( Parameters[1] / (PV - Parameters[0]) )
   }
 
+  RationalEquation_RGBvalue(Dose: number, Parameters: number[]) {
+    // Calculate the pixel R, G, or B value with the rational equation
+    let a = Parameters[0];
+    let b = Parameters[1];
+    let c = Parameters[2];
+    return a + b / (Dose - c)
+  }
+
   OpticalEquation(PV: number, Parameters: number[]) {
+    // Calculate the pixel dose with the optical equation
     // a = Parameters[0]
     // b = Parameters[1]
     // c = Parameters[2]
-    let OD = -Math.log10(PV)
+    let OD = -Math.log10(PV);
     return ( Parameters[1] - Parameters[2]*OD ) / (OD - Parameters[0])
   }
 
-  NetOpticalDensity(D:number, PV: number, PV0: number, Parameters: number[]) {
+  OpticalEquation_RGBvalue(Dose: number, Parameters: number[]) {
+    // Calculate the pixel R, G, or B value with the optical equation
+    let a = Parameters[0];
+    let b = Parameters[1];
+    let c = Parameters[2];
+    return (a * Dose + b) / (c + Dose)
+  }
 
-    let a = Parameters[0]
-    let b = Parameters[1]
+  NetOpticalDensity(D:number, PV: number, PV0: number, Parameters: number[]) {
+  // Calculate the pixel dose with the net optical density equation
+    let a = Parameters[0];
+    let b = Parameters[1];
     let c = Parameters[2];
 
-    let netOD = Math.log10( PV0 / PV )
-    // console.log('netOD:', netOD);
-
+    let netOD = Math.log10( PV0 / PV );
     let funct = (a*D) + b*Math.pow(D, c) - netOD;
-    // console.log('a*D:', a*D);
-    // console.log('D:', D);
-    // console.log('(c):', c);
-    // console.log('D**c:', Math.pow(D,c))
-    // console.log('(a*D) + b*(D**c):', (a*D) + b*(D**c));
-
     let DiffFunct = a + b*c*Math.pow(D,c-1);
-    // console.log('funct:', funct, 'DiffFunct:', DiffFunct);
-
     return [funct, DiffFunct]
   }
 
@@ -296,7 +349,7 @@ export class DosimetryService {
         return sum / elements
 
       } else {
-        console.log(`Can't calculate. Element (${elements}) > array length (${array.length})`)
+        console.log(`Can't calculate. Element (${elements}) > array length (${array.length})`);
       }
     } else {
 
@@ -330,21 +383,53 @@ export class DosimetryService {
       x = x0 - funct[0]/funct[1];
         
       if (x < 0) {
-        x = 0.0001;
+        x = 0.001;
       }
 
-      console.log('x:', x)
+      // console.log('x:', x);
         // console.log('x:', x,'f/Df',funct[0]/funct[1])
       funct = callback(x, PV, PV0, Parameters);
       x0 = x;
-      count = count +1
+      count = count +1;
 
       // console.log('f(x):', funct)
-      console.log('numero de iteraciones N-R:', count)
+      // console.log('numero de iteraciones N-R:', count);
     }
 
-    console.log('FIN ITERACIONES N-R:', count)
+    // console.log('FIN ITERACIONES N-R:', count);
     return x
+  }
+
+  BolzanoMethod(tol, callback, PV, PV0, Parameters) {
+
+    let Dose: number[] = this.beamDistributionService.linspace(0, 100, 11);
+    let y: number[] = callback(Dose[0], PV, PV0, Parameters);
+    // console.log('Dose:', Dose);
+    // console.log('y:', y);
+    let count =0;
+    let i: number = 0;
+    let D: number;
+    while (Math.abs(y[0]) > tol && count < 10) {
+
+
+      y = callback(Dose[i], PV, PV0, Parameters);
+      D = Dose[i];
+      i=i+1;
+      // console.log('y:', y);
+      if (y[0] >= 0 && i >= 2 && Math.abs(y[0]) > tol) {
+
+        Dose = this.beamDistributionService.linspace(Dose[i-2], Dose[i-1], 11);
+        // console.log('Dose:', Dose);
+        i=0;
+      }
+      count = count+1;
+    }
+
+    if (!D) {
+      D = tol;
+    }
+    // console.log('Dose:', D);
+    return D
   }
 
     
@@ -355,7 +440,7 @@ export class DosimetryService {
   LineLength(point0: [number, number], point1: [number, number]) {
 
     let len = Math.sqrt( (point1[0] - point0[0]) ** 2 + (point1[1] - point0[1]) **2 );
-    console.log('len:',len)
+    console.log('len:',len);
     return len
   }
 
@@ -366,7 +451,7 @@ export class DosimetryService {
 
     let distanceX = mmX / this.LineLength(origin,axisX); // mm/px
     let distanceY = mmY / this.LineLength(origin,axisY); // mm/px
-    console.log('distanceX, distanceY:', distanceX, distanceY)
+    console.log('distanceX, distanceY:', distanceX, distanceY);
     return [origin, distanceX, distanceY]
   }
 
@@ -374,7 +459,7 @@ export class DosimetryService {
 
     let r = Math.sqrt( ( (data1[0] - data2[0]) * distanceX ) **2 + ( (data1[1] - data2[1]) * distanceY ) **2 );
 
-    console.log('r:',r)
+    console.log('r:',r);
 
     return r
   }

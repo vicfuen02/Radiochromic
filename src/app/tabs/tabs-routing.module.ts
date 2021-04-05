@@ -19,16 +19,28 @@ const routes: Routes = [
         path: 'tab3',
         loadChildren: () => import('../tab3/tab3.module').then(m => m.Tab3PageModule)
       },
+      // {
+      //   path: 'tab4',
+      //   loadChildren: () => import('../Dosis/tab4.module').then(m => m.Tab4PageModule)
+      // },
+      // {
+      //   path: 'tab4/newcalibration',
+      //   loadChildren: () => import('../new-calibration/new-calibration.module').then(m => m.NewCalibrationPageModule)
+      // },
+      // {
+      //   path: 'beam-distribution',
+      //   loadChildren: () => import('../beam-distribution/beam-distribution.module').then( m => m.BeamDistributionPageModule)
+      // },
       {
-        path: 'tab4',
+        path: 'tab3/Dosimetry',
         loadChildren: () => import('../Dosis/tab4.module').then(m => m.Tab4PageModule)
       },
       {
-        path: 'tab4/newcalibration',
+        path: 'tab3/Dosimetry/NewCalibration',
         loadChildren: () => import('../new-calibration/new-calibration.module').then(m => m.NewCalibrationPageModule)
       },
       {
-        path: 'beam-distribution',
+        path: 'tab3/BeamDistribution',
         loadChildren: () => import('../beam-distribution/beam-distribution.module').then( m => m.BeamDistributionPageModule)
       },
       {

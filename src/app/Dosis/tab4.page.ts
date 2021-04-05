@@ -95,7 +95,14 @@ export class Tab4Page implements OnInit {
 
 
   /////////// Calcula la dosis del pixel
-  // Calculats() { ////////// EN PROCESO////////
+
+  CalculateDosis() {
+
+    this.RGBPoint = this.dosimetryService.saveRGB;
+    [this.PixelDoseChannel, [this.RGB_MeanDose, this.RG_MeanDose] ] = this.dosimetryService.CalculateDose(this.ExistsZero, this.RGBPoint, this.SelectedCalibration, this.zero)
+  }
+
+  // CalculateDosis() {
 
   //   try {
 
@@ -104,107 +111,58 @@ export class Tab4Page implements OnInit {
   //     if (this.ExistsZero == false ) {
 
   //       console.log('no hay zero')
-
-  //       /////////// Dosis de cada canal del pixel seleccionado
+  //       /////////// Dosis del pixel seleccionado
   //       let DoseChannel = this.dosimetryService.DosisPerChannel(this.SelectedCalibration,this.RGBPoint);
-
-  //       /////////////// Dosis de cada canal redondeada
+  //       // // Redondea a 3 decimales la dosis de cada canal
+  //       // let round: number[] = [] 
+  //       // for (let i = 0; i < DoseChannel.length; i++) {
+  //       //   round[i] = +DoseChannel[i].toFixed(3);
+  //       // }
+  //       /////////////// Dosis de cada canal
   //       this.PixelDoseChannel = this.dosimetryService.RoundArray(DoseChannel,3);
-
-  //       // [this.RGB_MeanDose, this.RG_MeanDose] = this.dosimetryService.TotalDoses(this.PixelDoseChannel);
 
   //     } else {
 
-  //       console.log('hay zero')
-  //       ////////// Dosis del zero
-
+  //       console.log('hay zero') 
+  //       /////////// Media de los valores RGB del zero, [red, green, blue]
+  //       let MeanZero: number[]=[]; 
+  //       MeanZero = [this.dosimetryService.ArrayMean(this.zero[0]),
+  //                   this.dosimetryService.ArrayMean(this.zero[1]),
+  //                   this.dosimetryService.ArrayMean(this.zero[2])
+  //       ];
+  //       console.log('MeanZero:', MeanZero)
 
   //       /////////// Dosis del pixel seleccionado
   //       let DoseChannel = this.dosimetryService.DosisPerChannel(this.SelectedCalibration, this.RGBPoint, MeanZero);
 
-  //       this.dosimetryService.SubstracZero(totalDosePixel: number[], this.zero, this.SelectedCalibration)
+  //       //////////// Dosis del zero
+  //       let ZeroDose: number[]=[]; 
+  //       ZeroDose = this.dosimetryService.DosisPerChannel(this.SelectedCalibration, MeanZero, MeanZero);
 
+  //       ///////////// Resta la dosis del zero a la dosis del punto seleccionado y lo redondea a 3 decimales
+  //       let substract: number[]=[];
+  //       for (let i=0; i< ZeroDose.length; i++) {
+
+  //         substract[i] = +(DoseChannel[i] - ZeroDose[i]).toFixed(3);
+  //         console.log('DoseChannel',DoseChannel[i])
+  //         console.log('ZeroDose',ZeroDose[i])
+  //         console.log('PixelDoseChannel',substract[i])
+  //       }
+  //       /////////////// Dosis de cada canal
+  //       this.PixelDoseChannel = substract;
   //     }
-
+  //     // this.PixelPoint =  this.dosimetryService.saveXY;
+  //     // console.log('PixelPoint',this.PixelPoint);
+  //     // console.log('RGBPoint',this.RGBPoint);
+  //     // console.log('selected:',this.SelectedCalibration);
 
   //     ////////////// Calcula la dosis total del pixel a partir de la dosis de cada canal (media RGB, media RG, minimos cuadrados, etc)
   //     [this.RGB_MeanDose, this.RG_MeanDose] = this.dosimetryService.TotalDoses(this.PixelDoseChannel);
-
 
   //   } catch (e) {
   //     console.log(e)
   //   }
   // }
-
-
-  CalculateDosis() {
-
-    try {
-
-      this.RGBPoint = this.dosimetryService.saveRGB;
-
-      if (this.ExistsZero == false ) {
-
-        console.log('no hay zero')
-
-        /////////// Dosis del pixel seleccionado
-        let DoseChannel = this.dosimetryService.DosisPerChannel(this.SelectedCalibration,this.RGBPoint);
-
-        // // Redondea a 3 decimales la dosis de cada canal
-        // let round: number[] = [] 
-        // for (let i = 0; i < DoseChannel.length; i++) {
-        //   round[i] = +DoseChannel[i].toFixed(3);
-        // }
-        /////////////// Dosis de cada canal
-        this.PixelDoseChannel = this.dosimetryService.RoundArray(DoseChannel,3);
-
-      } else {
-
-        console.log('hay zero') 
-
-        /////////// Media de los valores RGB del zero, [red, green, blue]
-        let MeanZero: number[]=[]; 
-        MeanZero = [this.dosimetryService.ArrayMean(this.zero[0]),
-                    this.dosimetryService.ArrayMean(this.zero[1]),
-                    this.dosimetryService.ArrayMean(this.zero[2])
-        ];
-        console.log('MeanZero:', MeanZero)
-
-        /////////// Dosis del pixel seleccionado
-        let DoseChannel = this.dosimetryService.DosisPerChannel(this.SelectedCalibration, this.RGBPoint, MeanZero);
-
-        //////////// Dosis del zero
-        let ZeroDose: number[]=[]; 
-        ZeroDose = this.dosimetryService.DosisPerChannel(this.SelectedCalibration, MeanZero, MeanZero);
-
-        ///////////// Resta la dosis del zero a la dosis del punto seleccionado y lo redondea a 3 decimales
-        let substract: number[]=[];
-        for (let i=0; i< ZeroDose.length; i++) {
-
-          substract[i] = +(DoseChannel[i] - ZeroDose[i]).toFixed(3);
-          console.log('DoseChannel',DoseChannel[i])
-          console.log('ZeroDose',ZeroDose[i])
-          console.log('PixelDoseChannel',substract[i])
-        }
-
-        /////////////// Dosis de cada canal
-        this.PixelDoseChannel = substract;
-
-      }
-
-      // this.PixelPoint =  this.dosimetryService.saveXY;
-      // console.log('PixelPoint',this.PixelPoint);
-      // console.log('RGBPoint',this.RGBPoint);
-      // console.log('selected:',this.SelectedCalibration);
-
-      ////////////// Calcula la dosis total del pixel a partir de la dosis de cada canal (media RGB, media RG, minimos cuadrados, etc)
-      [this.RGB_MeanDose, this.RG_MeanDose] = this.dosimetryService.TotalDoses(this.PixelDoseChannel);
-
-
-    } catch (e) {
-      console.log(e)
-    }
-  }
 
 
   

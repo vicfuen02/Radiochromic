@@ -67,7 +67,7 @@ export class NewCalibrationPage {
     // this.newCalibration.formula = this.displayexprs
     await this.dosimetryService.StorageNewCalibration(this.newCalibration);
     await console.log(this.newCalibration)
-    this.router.navigate(['/tabs/tab4']);
+    this.router.navigate(['/tabs/tab3/Dosimetry']);
 
   }
 

@@ -31,7 +31,7 @@ export class Tab2Page {
 
   public async showActionSheet(photo: Photo, position: number) {
     const actionSheet = await this.actionSheetController.create({
-      header: 'Photos',
+      header: 'Options',
       buttons: [{
         text: 'Scan',
         icon: 'scan',

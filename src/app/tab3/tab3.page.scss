@@ -1,0 +1,18 @@
+ion-header::after {
+    background-image: none;
+}
+.header{
+    // border: 1px solid rgb(163, 163, 163);
+    border-bottom: 1px solid rgb(56, 128, 255);
+}
+
+
+.dos_item{
+    --border-color: rgb(255,255,255);
+}
+
+.grid{
+    // --border-color: rgb(0, 0, 0);
+    border-bottom: 1px solid rgb(235, 238, 240);
+    width: 100%;
+}

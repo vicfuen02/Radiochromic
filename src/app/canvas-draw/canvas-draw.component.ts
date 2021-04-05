@@ -132,8 +132,14 @@ export class CanvasDrawComponent {
     // draw a rectangule where you click
     const w=10;
     const h= 10;
-    otherctx.fillRect(this.saveX-w/2, this.saveY-h/2, w,h);
-    otherctx.clearRect(this.saveX-0.5*w/2, this.saveY-0.5*h/2, w*0.5,h*0.5);
+    otherctx.fillRect(this.saveX-w/2, this.saveY-h/2, w + 1, h + 1);
+    otherctx.clearRect(this.saveX-0.5*w/2, this.saveY-0.5*h/2, w*0.5, h*0.5);
+
+    // otherctx.arc(this.saveX-w/2, this.saveY-h/2, 25, 0, 2*Math.PI);
+    // otherctx.fillStyle = 'red';
+    // otherctx.fill();
+    // otherctx.stroke();
+    
 
     this.dosimetryService.saveXY = [this.saveX, this.saveY];
     this.dosimetryService.saveRGB = this.rgba;

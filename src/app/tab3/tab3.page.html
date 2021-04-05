@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header class="header">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
@@ -12,15 +12,15 @@
 <ion-content [fullscreen]="true">
 
   <ion-grid>
-    <ion-row>
+    <ion-row class="grid">
       <ion-col>
-        <ion-item routerLink="/tabs/tab4">
+        <ion-item routerLink="/tabs/tab3/Dosimetry" class="dos_item">
           Dosimetry
         </ion-item>
       </ion-col>
-
+        
       <ion-col>
-        <ion-item routerLink="/tabs/beam-distribution">
+        <ion-item routerLink="/tabs/tab3/BeamDistribution" class="dos_item">
           Beam Distribution
         </ion-item>
       </ion-col>
@@ -31,11 +31,6 @@
   <p></p>
 
   <app-canvas-draw #CanvasComponent></app-canvas-draw>
-  <p>finn</p>
-  <ion-button (click)="setBackground()">
-    <ion-icon slot="start" name="image"></ion-icon>
-    holaaa
-  </ion-button>
   
  
 </ion-content>

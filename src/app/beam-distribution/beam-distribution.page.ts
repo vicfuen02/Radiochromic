@@ -64,12 +64,13 @@ export class BeamDistributionPage implements OnInit {
   mu_Y:number;
   yc_Y:number;
   A_Y:number;
+  y0_Y: number;
   FWHM_X:number;
   sigma_X:number;
   mu_X:number;
   yc_X:number;
   A_X:number;
-
+  y0_X: number;
   // scale = 1;
   // transform: ImageTransform = {};
   // @ViewChild(ImageCropperComponent, {static: false}) angularCropper: ImageCropperComponent;
@@ -98,7 +99,7 @@ export class BeamDistributionPage implements OnInit {
 
     if (!this.CropImage) {
       this.CanvasComponent.setBackground();
-      console.log('falseee');
+      console.log('false');
     }
   }
 
@@ -211,19 +212,20 @@ export class BeamDistributionPage implements OnInit {
     let Dataset_Y: Chart.ChartDataSets[] = [];
     let [PlotDataY, PlotDataX] = this.SetUpDataDistribution(this.selectedImage, this.SelectedCalibration);
     
+    ////////////// Vertical Plot (Y Width)
     console.log('VERTICAL ORIGINAL PLOT');
     let PlotDataRGB_Y = this.PrepareDataForPlot(PlotDataY[0], PlotDataY[1]);
     let PlotDataRG_Y = this.PrepareDataForPlot(PlotDataY[0], PlotDataY[2]);
     let Gaussian_Y_PrePlot = this.beamDistributionService.GaussianFitting(PlotDataY[0], PlotDataY[1]);
     let Gaussian_Y = this.PrepareDataForPlot(Gaussian_Y_PrePlot[0], Gaussian_Y_PrePlot[1]);
-    console.log('Gaussian_Y:', Gaussian_Y_PrePlot);
+    // console.log('Gaussian_Y:', Gaussian_Y_PrePlot);
     Dataset_Y = [{
-      label: 'Y Width. RGB Mean. Dose (Gy) vs Distance (mm)',
+      label: 'Dose (Gy) vs Distance (mm)',
       data: PlotDataRGB_Y,
       fill:  true,
       backgroundColor: 'rgba(31, 119, 180, 1)',
     }, {
-      label: 'Y Width. Gaussian RGB Mean. Dose (Gy) vs Distance (mm)',
+      label: 'Dose (Gy) vs Distance (mm) Gaussian Fitting',
       data: Gaussian_Y,
       fill:  true,
       backgroundColor: 'rgba(255, 127, 14, 1)',
@@ -233,21 +235,22 @@ export class BeamDistributionPage implements OnInit {
     this.mu_Y = Gaussian_Y_PrePlot[2][2];
     this.yc_Y = Gaussian_Y_PrePlot[2][0];
     this.A_Y = Gaussian_Y_PrePlot[2][3];
+    this.y0_Y = Gaussian_Y_PrePlot[2][5];
 
-    
+    ////////////// Horizontal Plot (X Width)
     console.log('HORIZONTAL ORIGINAL PLOT');
     let PlotDataRGB_X = this.PrepareDataForPlot(PlotDataX[0], PlotDataX[1]);
     let PlotDataRG_X = this.PrepareDataForPlot(PlotDataX[0], PlotDataX[2]);
     let Gaussian_X_PrePlot = this.beamDistributionService.GaussianFitting(PlotDataX[0], PlotDataX[1]);
     let Gaussian_X = this.PrepareDataForPlot(Gaussian_X_PrePlot[0], Gaussian_X_PrePlot[1]);
-    console.log('Gaussian_X:', Gaussian_X);
+    // console.log('Gaussian_X:', Gaussian_X);
     Dataset_X = [{
-      label: 'X Width. RGB Mean. Dose (Gy) vs Distance (mm)',
+      label: 'Dose (Gy) vs Distance (mm)',
       data: PlotDataRGB_X,
       fill:  true,
       backgroundColor: 'rgba(31, 119, 180, 1)',
     }, {
-      label: 'X Width. Gaussian RGB Mean. Dose (Gy) vs Distance (mm)',
+      label: 'Dose (Gy) vs Distance (mm) Gaussian Fitting',
       data: Gaussian_X,
       fill:  true,
       backgroundColor: 'rgba(255, 127, 14, 1)',
@@ -257,7 +260,7 @@ export class BeamDistributionPage implements OnInit {
     this.mu_X = Gaussian_X_PrePlot[2][2];
     this.yc_X = Gaussian_X_PrePlot[2][0];
     this.A_X = Gaussian_X_PrePlot[2][3];
-    
+    this.y0_X = Gaussian_Y_PrePlot[2][5];
     
     console.log('PLOT');
     // console.log('this.ExistsChart:', this.ExistsChart);
@@ -270,7 +273,7 @@ export class BeamDistributionPage implements OnInit {
     // console.log('this.ExistsChart:', this.ExistsChart);
     // console.log(' typeof this.Chart[0]:', typeof this.Chart);
     // console.log('this.Chart[0]:',this.Chart);
-
+    
     console.log('PLOT 2');
     this.Plot(this.Chart,'chart_2', Dataset_X);
     // console.log('this.ExistsChart:', this.ExistsChart);
@@ -383,47 +386,89 @@ export class BeamDistributionPage implements OnInit {
     let dataY_R: number[][] = dataY[0];
     let dataY_G: number[][] = dataY[1];
     let dataY_B: number[][] = dataY[2];
-    // console.log('dataY_R:', dataY_R);
-    // console.log('PixelsNearby_G:', PixelsNearby_G);
-    // console.log('PixelsNearby_B:', PixelsNearby_B);
-
     let DoseY_RGB: number[] = [];
     let DoseY_RG: number[] = [];
     let circleDoseRGB: number[][] = [];
     let circleDoseRG: number[][] = [];
-    // console.log('a:',1);
+
     for (let i=0; i < dataY_R.length; i++) {
       circleDoseRGB[i] = [];
       circleDoseRG[i] = [];
     }
-    // console.log('INIT DataForFittingY LOOP');
+    console.log('dataforfittingY');
     for (let line = 0; line < dataY_R.length; line++) {
       for (let pixel = 0; pixel < dataY_R[line].length; pixel++) {
 
+        let RGB_MeanDose: number;
+        let RG_MeanDose: number;
+        let PixelDoseChannel: number[] = [];
         let rgb: number[] = [dataY_R[line][pixel], dataY_G[line][pixel], dataY_B[line][pixel]];
-        let array: number[] = this.dosimetryService.DosisPerChannel(calibration, rgb);
-        let pixelChannelDose: number[] = this.dosimetryService.RoundArray(array, 3);
-        // console.log('line:',line,'pixel:',pixel);
-        // console.log('pixelChannelDose:',pixelChannelDose);
-        let pixelDose: number[] = this.dosimetryService.TotalDoses(pixelChannelDose);
-        circleDoseRGB[line].push(pixelDose[0]);
-        circleDoseRG[line].push(pixelDose[1]);
+        [PixelDoseChannel, [RGB_MeanDose, RG_MeanDose] ] = this.dosimetryService.CalculateDose(this.ExistsZero, rgb, calibration, this.zero);
+        
+        circleDoseRGB[line].push(RGB_MeanDose);
+        circleDoseRG[line].push(RG_MeanDose);
       }
 
       // console.log('dataY_R[line]:', dataY_R[line]);
-      DoseY_RGB.push( +this.dosimetryService.ArrayMean(circleDoseRGB[line]).toFixed(3) );
-      DoseY_RG.push( +this.dosimetryService.ArrayMean(circleDoseRG[line]).toFixed(3) );
+      // DoseY_RGB.push( this.dosimetryService.ArrayMean(circleDoseRGB[line]) );
+      // DoseY_RG.push( this.dosimetryService.ArrayMean(circleDoseRG[line]) );
+      DoseY_RGB.push( Math.max(...circleDoseRGB[line]) );
+      DoseY_RG.push( Math.max(...circleDoseRG[line]) );
+      
     }
-
-    // console.log('circleDoseRGB:',circleDoseRGB);
-    // console.log('DoseY_RGB:', DoseY_RGB);
-    // console.log('DoseY_RG:', DoseY_RG);
-    // console.log('DoseY_RGB:', DoseY_RGB);
-    // console.log('DoseY_RGB.length:', DoseY_RGB.length);
+    DoseY_RGB = this.beamDistributionService.RoundArray(DoseY_RGB, 3);
+    DoseY_RG = this.beamDistributionService.RoundArray(DoseY_RG, 3);
     console.log('END DataForFittingY');
-    
     return [DoseY_RGB, DoseY_RG]
   }
+
+  // DataFittingY(dataY, calibration: Calibration) {
+  //   // Calculate the dose for the rgb values from dataY
+    
+  //   let dataY_R: number[][] = dataY[0];
+  //   let dataY_G: number[][] = dataY[1];
+  //   let dataY_B: number[][] = dataY[2];
+  //   // console.log('dataY_R:', dataY_R);
+  //   // console.log('PixelsNearby_G:', PixelsNearby_G);
+  //   // console.log('PixelsNearby_B:', PixelsNearby_B);
+
+  //   let DoseY_RGB: number[] = [];
+  //   let DoseY_RG: number[] = [];
+  //   let circleDoseRGB: number[][] = [];
+  //   let circleDoseRG: number[][] = [];
+  //   // console.log('a:',1);
+  //   for (let i=0; i < dataY_R.length; i++) {
+  //     circleDoseRGB[i] = [];
+  //     circleDoseRG[i] = [];
+  //   }
+  //   // console.log('INIT DataForFittingY LOOP');
+  //   for (let line = 0; line < dataY_R.length; line++) {
+  //     for (let pixel = 0; pixel < dataY_R[line].length; pixel++) {
+
+  //       let rgb: number[] = [dataY_R[line][pixel], dataY_G[line][pixel], dataY_B[line][pixel]];
+  //       let array: number[] = this.dosimetryService.DosisPerChannel(calibration, rgb);
+  //       let pixelChannelDose: number[] = this.dosimetryService.RoundArray(array, 3);
+  //       // console.log('line:',line,'pixel:',pixel);
+  //       // console.log('pixelChannelDose:',pixelChannelDose);
+  //       let pixelDose: number[] = this.dosimetryService.TotalDoses(pixelChannelDose);
+  //       circleDoseRGB[line].push(pixelDose[0]);
+  //       circleDoseRG[line].push(pixelDose[1]);
+  //     }
+
+  //     // console.log('dataY_R[line]:', dataY_R[line]);
+  //     DoseY_RGB.push( +this.dosimetryService.ArrayMean(circleDoseRGB[line]).toFixed(3) );
+  //     DoseY_RG.push( +this.dosimetryService.ArrayMean(circleDoseRG[line]).toFixed(3) );
+  //   }
+
+  //   // console.log('circleDoseRGB:',circleDoseRGB);
+  //   // console.log('DoseY_RGB:', DoseY_RGB);
+  //   // console.log('DoseY_RG:', DoseY_RG);
+  //   // console.log('DoseY_RGB:', DoseY_RGB);
+  //   // console.log('DoseY_RGB.length:', DoseY_RGB.length);
+  //   console.log('END DataForFittingY');
+    
+  //   return [DoseY_RGB, DoseY_RG]
+  // }
 
   PrepareDataForPlot(X_Axis: number[], Y_Axis: number[]) {
 
@@ -502,81 +547,10 @@ export class BeamDistributionPage implements OnInit {
           }]
         }
       }
-    });
-    
-    // console.log('22222222222222222',typeof chart);
-
-    
+    });    
   }
 
   
-
-  
-
-
-  
-
-
-  // CalculateDosis() {
-
-  //   try {
-
-  //     this.RGBPoint = this.dosimetryService.saveRGB;
-
-  //     if (this.ExistsZero == false ) {
-
-  //       console.log('no hay zero')
-
-  //       /////////// Dosis del pixel seleccionado
-  //       let DoseChannel = this.dosimetryService.DosisPerChannel(this.SelectedCalibration,this.RGBPoint);
-
-  //       /////////////// Dosis de cada canal
-  //       this.PixelDoseChannel = this.dosimetryService.RoundArray(DoseChannel,3);
-
-  //     } else {
-
-  //       console.log('hay zero') 
-
-  //       /////////// Media de los valores RGB del zero, [red, green, blue]
-  //       let MeanZero: number[]=[]; 
-  //       MeanZero = [this.dosimetryService.ArrayMean(this.zero[0]),
-  //                   this.dosimetryService.ArrayMean(this.zero[1]),
-  //                   this.dosimetryService.ArrayMean(this.zero[2])
-  //       ];
-  //       console.log('MeanZero:', MeanZero)
-
-  //       /////////// Dosis del pixel seleccionado
-  //       let DoseChannel = this.dosimetryService.DosisPerChannel(this.SelectedCalibration, this.RGBPoint, MeanZero);
-
-  //       //////////// Dosis del zero
-  //       let ZeroDose: number[]=[]; 
-  //       ZeroDose = this.dosimetryService.DosisPerChannel(this.SelectedCalibration, MeanZero, MeanZero);
-
-  //       ///////////// Resta la dosis del zero a la dosis del punto seleccionado y lo redondea a 3 decimales
-  //       let substract: number[]=[];
-  //       for (let i=0; i< ZeroDose.length; i++) {
-
-  //         substract[i] = +(DoseChannel[i] - ZeroDose[i]).toFixed(3);
-  //         console.log('DoseChannel',DoseChannel[i])
-  //         console.log('ZeroDose',ZeroDose[i])
-  //         console.log('PixelDoseChannel',substract[i])
-  //       }
-
-  //       /////////////// Dosis de cada canal
-  //       this.PixelDoseChannel = substract;
-
-  //     }
-
-  //     ////////////// Calcula la dosis total del pixel a partir de la dosis de cada canal (media RGB, media RG, minimos cuadrados, etc)
-  //     [this.RGB_MeanDose, this.RG_MeanDose] = this.dosimetryService.TotalDoses(this.PixelDoseChannel);
-
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
-
-
-
 
 
 

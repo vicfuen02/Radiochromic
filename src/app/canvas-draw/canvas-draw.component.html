@@ -10,11 +10,19 @@
 <ion-content [forceOverscroll]="false">
 
   
-  <ion-button (click)="setBackground()">
+  &nbsp;<ion-button (click)="setBackground()">
     <ion-icon slot="start" name="image"></ion-icon>
     Reload image
   </ion-button>
   
+  &nbsp;
+  <div>
+    &nbsp;<strong>Pixel:</strong> {{this.saveX}}, {{this.saveY}}
+  </div>
+  
+  <div>
+    &nbsp;<strong>RGBA:</strong> {{this.rgba}}
+  </div>
     
   <!-- <ion-grid>
     <ion-row>
@@ -84,19 +92,12 @@
       </ion-col>
     </ion-row>
   </ion-grid> -->
-  &nbsp;
-  <div>
-    &nbsp;<strong>Pixel:</strong> {{this.saveX}}, {{this.saveY}}
-  </div>
-  
-  <div>
-    &nbsp;<strong>RGBA:</strong> {{this.rgba}}
-  </div>
+
   <!-- <div>
     <strong>Distance: </strong> {{distance}}
   </div>
   <p></p> -->
-  <p>finn1</p>
+  
 </ion-content>
 
 

@@ -3,3 +3,15 @@
     margin: auto;
     min-height: 300px;
 }
+
+ion-header::after {
+    background-image: none;
+}
+.header{
+    // border: 1px solid rgb(163, 163, 163);
+    border-bottom: 1px solid rgb(56, 128, 255);
+}
+
+.choose_item{
+    --border-color: rgb(235, 238, 240);
+}

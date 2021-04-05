@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header class="header">
   <ion-toolbar>
 
     <ion-buttons slot="start">
@@ -18,7 +18,7 @@
 
   <!--------------------- CALIBRACION -------------------------->
   <ion-list>
-    <ion-item>
+    <ion-item class="choose_item">
       <ion-label>Choose calibration</ion-label>
 
         <ion-select interface="popover" placeholder="Select Calibration" [(ngModel)]="SelectedCalibration">
@@ -27,10 +27,10 @@
     </ion-item>
   </ion-list>
 
-  <ion-button *ngIf="!CalculatingDistance" (click)="DisplayIf($ev)">
+  &nbsp;<ion-button *ngIf="!CalculatingDistance" (click)="DisplayIf($ev)">
     Set coordinates
   </ion-button>
-  <ion-button *ngIf="CalculatingDistance" (click)="DisplayIf($ev)">
+  &nbsp;<ion-button *ngIf="CalculatingDistance" (click)="DisplayIf($ev)">
     Save
   </ion-button>
   
@@ -170,13 +170,26 @@
   <!------------------------- PLOT ----------------------------->
   <!-- <canvas id="myChart" width="400" height="400"></canvas> -->
   <div *ngIf="ExistsChart"> 
-    &nbsp;&nbsp;&nbsp; y = y<sub>0</sub> + ( A/(2&sigma;&radic;<span style="text-decoration: overline">&pi;/2</span>) )*exp( -2*( (x-&mu;)/2&sigma; )<sup>2</sup> )
+    &nbsp;&nbsp;&nbsp; y = y<sub>0</sub> + ( A/(2&sigma;&radic;<span style="text-decoration: overline">&pi;/2</span>) )*exp( -2*( (x-&mu;)/2&sigma; )<sup> 2</sup> <br>
+    <br>
+    &nbsp;&nbsp;&nbsp; y<sub>C</sub> = y<sub>0</sub> + A/(2&sigma;&radic;<span style="text-decoration: overline">&pi;/2</span>) 
   </div>
-  <ion-card>
+
+  <!-------------- Y WIDTH PLOT -------------->
+  <!-- <ion-card>
+    <br>
+    <span style="padding-left:20px"><strong>Y Width. RGB Mean Dose.</strong></span>
     <div class="chart-container">
       <canvas id="chart_1"></canvas>
     </div>
-  </ion-card>
+  </ion-card> -->
+  
+  <br>
+  <span *ngIf="ExistsChart" style="padding-left:20px"><strong>Y Width. RGB Mean Dose.</strong></span>
+  <div class="chart-container">
+    <canvas id="chart_1"></canvas>
+  </div>
+  
   <ion-card>
     <div *ngIf="ExistsChart"> 
       &nbsp;<strong>
@@ -184,15 +197,25 @@
         &sigma;<sub>Y</sub>: {{this.sigma_Y}} &nbsp;
         &mu;<sub>Y</sub>: {{this.mu_Y}} &nbsp;
         y<sub>C</sub><sub>Y</sub>: {{this.yc_Y}} &nbsp; <br>
-        &nbsp;&nbsp;A<sub>Y</sub>: {{this.A_Y}} 
+        &nbsp;&nbsp;A<sub>Y</sub>: {{this.A_Y}} &nbsp;
+        y<sub>0</sub><sub>Y</sub>: {{this.y0_Y}} &nbsp; 
       </strong>
     </div>
   </ion-card>
-  <ion-card>
+
+  <!-------------- X WIDTH PLOT -------------->
+  <!-- <ion-card>
+    <br>
+    <span *ngIf="ExistsChart" style="padding-left:20px"><strong>X Width RGB Mean Dose.</strong></span>
     <div class="chart-container">
       <canvas id="chart_2"></canvas>
     </div>
-  </ion-card>
+  </ion-card> -->
+  <br>
+  <span *ngIf="ExistsChart" style="padding-left:20px"><strong>X Width. RGB Mean Dose.</strong></span>
+  <div class="chart-container">
+    <canvas id="chart_2"></canvas>
+  </div>
   <ion-card *ngIf="ExistsChart">
     <div>
       &nbsp;<strong>
@@ -200,7 +223,8 @@
         &sigma;<sub>X</sub>: {{this.sigma_X}} &nbsp;
         &mu;<sub>X</sub>: {{this.mu_X}} &nbsp;
         y<sub>C</sub><sub>X</sub>: {{this.yc_X}} &nbsp; <br>
-        &nbsp;&nbsp;A<sub>X</sub>: {{this.A_X}}
+        &nbsp;&nbsp;A<sub>X</sub>: {{this.A_X}} &nbsp;
+        y<sub>0</sub><sub>X</sub>: {{this.y0_X}} &nbsp; 
       </strong>
     </div>
   </ion-card>
