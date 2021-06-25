@@ -38,8 +38,8 @@ export class CanvasDrawComponent {
   RGBAData: number[];
   Dosis: number;
   distance;
-
-
+  brillo: number;
+  rgb255: number[];
   constructor(private plt: Platform,
               private photoSvc: PhotoService,
               private dosimetryService: DosimetryService,
@@ -62,7 +62,7 @@ export class CanvasDrawComponent {
       this.background.src = this.photoShared.webviewPath;
       this.ctx = this.canvasElement.getContext('2d');
 
-
+      
       //////// Tamaño original, canvas y renormalizacion de la imagen
       this.imgWidth = this.background.naturalWidth;
       this.imgHeight = this.background.naturalHeight;
@@ -122,7 +122,7 @@ export class CanvasDrawComponent {
     this.saveX = Math.trunc(pageX - canvasPosition.x);
     this.saveY = Math.trunc(pageY - canvasPosition.y);
     console.log('click:', `X: ${this.saveX}, Y:${this.saveY}`)
-
+    
     // RGBA indexes of the selected pixel
     var colorIndices = this.rgbavaluesService.getColorIndicesForCoord(this.saveX, this.saveY, this.canvasElement.width);
     //RGBA values of the selected pixel
@@ -144,6 +144,8 @@ export class CanvasDrawComponent {
     this.dosimetryService.saveXY = [this.saveX, this.saveY];
     this.dosimetryService.saveRGB = this.rgba;
     // return [this.saveX, this.saveY]
+    this.brillo = (this.rgba[0] + this.rgba[1] + this.rgba[2])*255;
+    this.rgb255 = [+(this.rgba[0]*255).toFixed(3) , +(this.rgba[1]*255).toFixed(3) , +(this.rgba[2]*255).toFixed(3)];
   }
 
 

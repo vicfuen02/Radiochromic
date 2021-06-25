@@ -6,7 +6,7 @@ import { RGBAvaluesService } from '../services/rgbavalues.service';
 import { BeamDistributionService } from '../services/beamdistribution.service';
 
 import { ImageCroppedEvent, ImageTransform, ImageCropperComponent, CropperPosition } from 'ngx-image-cropper';
-import { Calibration } from '../models/calibration.interface';
+import { Calibration, Gaussian } from '../models/calibration.interface';
 import { CanvasDrawComponent } from '../canvas-draw/canvas-draw.component';
 import * as Chart from "chart.js";
 // import { ChartDataSets } from 'chart.js';
@@ -34,7 +34,7 @@ export class BeamDistributionPage implements OnInit {
   coordsData: number[]=[];
   RGBAData: number[];
   distance: number;
-
+  error_distance: number;
   ///// Parametros del zero
   zero: [number[],number[], number[]] = [
     [],
@@ -65,12 +65,18 @@ export class BeamDistributionPage implements OnInit {
   yc_Y:number;
   A_Y:number;
   y0_Y: number;
+  R2_Y: number;
   FWHM_X:number;
   sigma_X:number;
   mu_X:number;
   yc_X:number;
   A_X:number;
   y0_X: number;
+  R2_X: number;
+
+  error_Gaussiana_X: Gaussian;
+  error_Gaussiana_Y: Gaussian;
+
   // scale = 1;
   // transform: ImageTransform = {};
   // @ViewChild(ImageCropperComponent, {static: false}) angularCropper: ImageCropperComponent;
@@ -174,11 +180,12 @@ export class BeamDistributionPage implements OnInit {
     return this.distance;
   }
 
-  // DistanceCalculus() {
-  //   //Distancia entre dos puntos
-  //   let CoordSist = this.dosimetryService.CoordinateSistem(this.coords0,this.coordsX,this.coordsY);
-  //   this.distance = +this.dosimetryService.Distances(CoordSist[1],CoordSist[2],[this.coordsData[0],this.coordsData[1]],[this.coordsData[2],this.coordsData[3]]).toFixed(2);
-  // }
+  DistanceCalculusPrueba() {
+    //Distancia entre dos puntos
+    let CoordSist = this.dosimetryService.CoordinateSistem(this.coords0,this.coordsX,this.coordsY);
+    this.distance = +this.dosimetryService.Distances(CoordSist[1],CoordSist[2],[this.coordsData[0],this.coordsData[1]],[this.coordsData[2],this.coordsData[3]]).toFixed(2);
+    this.error_distance = +this.dosimetryService.ErrorDistances(CoordSist[1],CoordSist[2],[this.coordsData[0],this.coordsData[1]],[this.coordsData[2],this.coordsData[3]]).toFixed(2);
+  }
 
 
   ////////////////////// CROP IMAGE ////////////////////////////
@@ -207,88 +214,98 @@ export class BeamDistributionPage implements OnInit {
 
 
   Distribution() {
+    
 
     let Dataset_X: Chart.ChartDataSets[] = [];
     let Dataset_Y: Chart.ChartDataSets[] = [];
     let [PlotDataY, PlotDataX] = this.SetUpDataDistribution(this.selectedImage, this.SelectedCalibration);
-    
-    ////////////// Vertical Plot (Y Width)
-    console.log('VERTICAL ORIGINAL PLOT');
-    let PlotDataRGB_Y = this.PrepareDataForPlot(PlotDataY[0], PlotDataY[1]);
-    let PlotDataRG_Y = this.PrepareDataForPlot(PlotDataY[0], PlotDataY[2]);
-    let Gaussian_Y_PrePlot = this.beamDistributionService.GaussianFitting(PlotDataY[0], PlotDataY[1]);
-    let Gaussian_Y = this.PrepareDataForPlot(Gaussian_Y_PrePlot[0], Gaussian_Y_PrePlot[1]);
-    // console.log('Gaussian_Y:', Gaussian_Y_PrePlot);
-    Dataset_Y = [{
-      label: 'Dose (Gy) vs Distance (mm)',
-      data: PlotDataRGB_Y,
-      fill:  true,
-      backgroundColor: 'rgba(31, 119, 180, 1)',
-    }, {
-      label: 'Dose (Gy) vs Distance (mm) Gaussian Fitting',
-      data: Gaussian_Y,
-      fill:  true,
-      backgroundColor: 'rgba(255, 127, 14, 1)',
-    }];
-    this.FWHM_Y = Gaussian_Y_PrePlot[2][4];
-    this.sigma_Y = Gaussian_Y_PrePlot[2][1];
-    this.mu_Y = Gaussian_Y_PrePlot[2][2];
-    this.yc_Y = Gaussian_Y_PrePlot[2][0];
-    this.A_Y = Gaussian_Y_PrePlot[2][3];
-    this.y0_Y = Gaussian_Y_PrePlot[2][5];
+    try {
 
-    ////////////// Horizontal Plot (X Width)
-    console.log('HORIZONTAL ORIGINAL PLOT');
-    let PlotDataRGB_X = this.PrepareDataForPlot(PlotDataX[0], PlotDataX[1]);
-    let PlotDataRG_X = this.PrepareDataForPlot(PlotDataX[0], PlotDataX[2]);
-    let Gaussian_X_PrePlot = this.beamDistributionService.GaussianFitting(PlotDataX[0], PlotDataX[1]);
-    let Gaussian_X = this.PrepareDataForPlot(Gaussian_X_PrePlot[0], Gaussian_X_PrePlot[1]);
-    // console.log('Gaussian_X:', Gaussian_X);
-    Dataset_X = [{
-      label: 'Dose (Gy) vs Distance (mm)',
-      data: PlotDataRGB_X,
-      fill:  true,
-      backgroundColor: 'rgba(31, 119, 180, 1)',
-    }, {
-      label: 'Dose (Gy) vs Distance (mm) Gaussian Fitting',
-      data: Gaussian_X,
-      fill:  true,
-      backgroundColor: 'rgba(255, 127, 14, 1)',
-    }];
-    this.FWHM_X = Gaussian_X_PrePlot[2][4];
-    this.sigma_X = Gaussian_X_PrePlot[2][1];
-    this.mu_X = Gaussian_X_PrePlot[2][2];
-    this.yc_X = Gaussian_X_PrePlot[2][0];
-    this.A_X = Gaussian_X_PrePlot[2][3];
-    this.y0_X = Gaussian_Y_PrePlot[2][5];
-    
-    console.log('PLOT');
-    // console.log('this.ExistsChart:', this.ExistsChart);
-    // this.DestroyPlot(this.Chart);
-    // this.DestroyPlot(this.Chart);
-    // console.log('this.ExistsChart:', this.ExistsChart);
+      ////////////// Vertical Plot (Y Width)
+      console.log('VERTICAL ORIGINAL PLOT');
+      let PlotDataRGB_Y = this.PrepareDataForPlot(PlotDataY[0], PlotDataY[1]);
+      let PlotDataRG_Y = this.PrepareDataForPlot(PlotDataY[0], PlotDataY[2]);
+      let Gaussian_Y_PrePlot = this.beamDistributionService.GaussianFitting(PlotDataY[0], PlotDataY[1], PlotDataY[3]);
+      let Gaussian_Y = this.PrepareDataForPlot(Gaussian_Y_PrePlot[0], Gaussian_Y_PrePlot[1]);
+      // console.log('Gaussian_Y:', Gaussian_Y_PrePlot);
+      Dataset_Y = [{
+        label: 'Dose (Gy) vs Distance (mm)',
+        data: PlotDataRGB_Y,
+        fill:  true,
+        backgroundColor: 'rgba(31, 119, 180, 1)',
+      }, {
+        label: 'Dose (Gy) vs Distance (mm) Gaussian Fitting',
+        data: Gaussian_Y,
+        fill:  true,
+        backgroundColor: 'rgba(255, 127, 14, 1)',
+      }];
+      this.FWHM_Y = Gaussian_Y_PrePlot[2][4];
+      this.sigma_Y = Gaussian_Y_PrePlot[2][1];
+      this.mu_Y = Gaussian_Y_PrePlot[2][2];
+      this.yc_Y = Gaussian_Y_PrePlot[2][0];
+      this.A_Y = Gaussian_Y_PrePlot[2][3];
+      this.y0_Y = Gaussian_Y_PrePlot[2][5];
+      this.R2_Y = Gaussian_Y_PrePlot[2][6];
+      this.error_Gaussiana_Y = { A : Gaussian_Y_PrePlot[3][3], 
+        sigma : Gaussian_Y_PrePlot[3][1], 
+        mu : Gaussian_Y_PrePlot[3][2], 
+        FWHM : Gaussian_Y_PrePlot[3][4],
+        yc : Gaussian_Y_PrePlot[3][0]
+      };
+      console.log('PLOT 1');
+      this.Plot(this.Chart,'chart_1', Dataset_Y);
+    } catch (e) {
+      console.log(e);
+    }
 
-    console.log('PLOT 1');
-    this.Plot(this.Chart,'chart_1', Dataset_Y);
-    // console.log('this.ExistsChart:', this.ExistsChart);
-    // console.log(' typeof this.Chart[0]:', typeof this.Chart);
-    // console.log('this.Chart[0]:',this.Chart);
-    
-    console.log('PLOT 2');
-    this.Plot(this.Chart,'chart_2', Dataset_X);
-    // console.log('this.ExistsChart:', this.ExistsChart);
-    // console.log(' typeof this.Chart[0]:', typeof this.Chart);
-    // console.log('this.Chart[0]:',this.Chart);
-    // this.Plot('chart_1', PlotDataRGB_Y, 'rgba(31, 119, 180, 1)');
-    // this.Plot('chart_2', PlotDataRGB_X, 'rgba(255, 127, 14, 1)');
-    // this.Plot('chart_2', Gaussian_Y, 'rgba(255, 127, 14, 1)');
+    try {
+      ////////////// Horizontal Plot (X Width)
+      console.log('HORIZONTAL ORIGINAL PLOT');
+      let PlotDataRGB_X = this.PrepareDataForPlot(PlotDataX[0], PlotDataX[1]);
+      let PlotDataRG_X = this.PrepareDataForPlot(PlotDataX[0], PlotDataX[2]);
+      let Gaussian_X_PrePlot = this.beamDistributionService.GaussianFitting(PlotDataX[0], PlotDataX[1], PlotDataX[3]);
+      let Gaussian_X = this.PrepareDataForPlot(Gaussian_X_PrePlot[0], Gaussian_X_PrePlot[1]);
+      // console.log('Gaussian_X:', Gaussian_X);
+      Dataset_X = [{
+        label: 'Dose (Gy) vs Distance (mm)',
+        data: PlotDataRGB_X,
+        fill:  true,
+        backgroundColor: 'rgba(31, 119, 180, 1)',
+      }, {
+        label: 'Dose (Gy) vs Distance (mm) Gaussian Fitting',
+        data: Gaussian_X,
+        fill:  true,
+        backgroundColor: 'rgba(255, 127, 14, 1)',
+      }];
+      this.FWHM_X = Gaussian_X_PrePlot[2][4];
+      this.sigma_X = Gaussian_X_PrePlot[2][1];
+      this.mu_X = Gaussian_X_PrePlot[2][2];
+      this.yc_X = Gaussian_X_PrePlot[2][0];
+      this.A_X = Gaussian_X_PrePlot[2][3];
+      this.y0_X = Gaussian_X_PrePlot[2][5];
+      this.R2_X = Gaussian_X_PrePlot[2][6];
+      this.error_Gaussiana_X = { A : Gaussian_X_PrePlot[3][3], 
+        sigma : Gaussian_X_PrePlot[3][1], 
+        mu : Gaussian_X_PrePlot[3][2], 
+        FWHM : Gaussian_X_PrePlot[3][4],
+        yc : Gaussian_X_PrePlot[3][0]
+      };
+      console.log('PLOT 2');
+      this.Plot(this.Chart,'chart_2', Dataset_X);
+
+    } catch (e) {
+      console.log(e);
+    }
     
   }
 
   SetUpDataDistribution(croppedPixels: ImageCroppedEvent, calibration: Calibration) {
 
     // Esquina superir izquierda y esquina inferior derecha de la seleccion, [[x1,y1], [x2,y2]]
-    let points = this.beamDistributionService.ResizedPixels(croppedPixels.imagePosition);
+    let points: number[][] = [[Math.trunc(croppedPixels.cropperPosition.x1), Math.trunc(croppedPixels.cropperPosition.y1)],
+                  [Math.trunc(croppedPixels.cropperPosition.x2), Math.trunc(croppedPixels.cropperPosition.y2)]
+    ];
+    // let points = this.beamDistributionService.ResizedPixels(croppedPixels.imagePosition);
     let Square_Width = Math.abs(points[0][0] - points[1][0]);
     let Square_Height = Math.abs(points[0][1] - points[1][1]);
     let imgData = this.rgbavaluesService.imageData;
@@ -296,24 +313,12 @@ export class BeamDistributionPage implements OnInit {
     // console.log('Square_Height:', Square_Height);
     // console.log('imgData BEAM:', imgData);
 
-
-    // let PlotDataY = this.BeamWidht('vertical', imgData, calibration, points, Square_Width, Square_Height);
-    // this.Plot('chart_1', PlotDataY[0], 'rgba(31, 119, 180, 1)');
-    // let PlotDataX = this.BeamWidht('horizontal', imgData, calibration, points, Square_Width, Square_Height);
-    // this.Plot('chart_2', PlotDataX[0], 'rgba(255, 127, 14, 1)');
-
-
     console.log('VERTICAL');
     let PlotDataY = this.BeamWidht('vertical', imgData, calibration, points, Square_Width, Square_Height);
-    // let PlotDataRGB_Y = this.PrepareDataForPlot(PlotDataY[0], PlotDataY[1]);
-    // let PlotDataRG_Y = this.PrepareDataForPlot(PlotDataY[0], PlotDataY[2]);
-    // this.Plot('chart_1', PlotDataRGB_Y, 'rgba(31, 119, 180, 1)');
 
     console.log('HORIZONTAL');
     let PlotDataX = this.BeamWidht('horizontal', imgData, calibration, points, Square_Width, Square_Height);
-    // let PlotDataRGB_X = this.PrepareDataForPlot(PlotDataX[0], PlotDataX[1]);
-    // let PlotDataRG_X = this.PrepareDataForPlot(PlotDataX[0], PlotDataX[2]);
-    // this.Plot('chart_2', PlotDataRGB_X, 'rgba(255, 127, 14, 1)');
+
     return [PlotDataY, PlotDataX]
   }
 
@@ -324,47 +329,24 @@ export class BeamDistributionPage implements OnInit {
     if (orientation == 'vertical') {
 
       dataX = this.DataForFittingX([ points[0][0] + Math.trunc(Square_Width/2), points[0][1] ], [ points[0][0] + Math.trunc(Square_Width/2), points[1][1] ], Square_Height);
-      dataY = this.rgbavaluesService.circlePixelsNearby(imgData, points[0][0], points[0][1], Square_Width, Square_Height, 'vertical');
+      // dataY = this.rgbavaluesService.circlePixelsNearby(imgData, points[0][0], points[0][1], Square_Width, Square_Height, 'vertical');
+      dataY = this.rgbavaluesService.squarePixelsNearby(imgData, points[0][0], points[0][1], Square_Width, Square_Height, 'vertical');
     } else {
 
       dataX = this.DataForFittingX([ points[0][0], points[0][1] + Math.trunc(Square_Height/2) ], [ points[1][0], points[0][1] + Math.trunc(Square_Height/2)  ], Square_Width);
-      dataY = this.rgbavaluesService.circlePixelsNearby(imgData, points[0][1], points[0][0], Square_Height, Square_Width,'horizontal');
+      // dataY = this.rgbavaluesService.circlePixelsNearby(imgData, points[0][1], points[0][0], Square_Height, Square_Width,'horizontal');
+      dataY = this.rgbavaluesService.squarePixelsNearby(imgData, points[0][1], points[0][0], Square_Height, Square_Width,'horizontal');
     }
    
-    let [DoseY_RGB, DoseY_RG] = this.DataForFittingY(dataY, calibration);
+    let [DoseY_RGB, DoseY_RG, error_DoseY_RGB] = this.DataForFittingY(dataY, calibration);
+
     // console.log('dataX:', dataX);
     // console.log('DoseY_RGB:', DoseY_RGB);
     // console.log('DoseY_RG:', DoseY_RG);
-    return [dataX, DoseY_RGB, DoseY_RG]
-    // let PlotDataRGB = this.PrepareDataForPlot(dataX, DoseY_RGB);
-    // let PlotDataRG = this.PrepareDataForPlot(dataX, DoseY_RG);
-    // return [PlotDataRGB, PlotDataRG]
-    
+    return [dataX, DoseY_RGB, DoseY_RG, error_DoseY_RGB] 
   }
 
 
-
-  // VerticalBeamWidht(imgData, calibration: Calibration, points: number[][], Square_Width, Square_Height) {
-
-  //   let dataX = this.DataForFittingX([ points[0][0] + Math.trunc(Square_Width/2), points[0][1] ], [ points[0][0] + Math.trunc(Square_Width/2), points[1][1] ], Square_Height);
-  //   let dataY = this.rgbavaluesService.circlePixelsNearby(imgData, points[0][0], points[0][1], Square_Width, Square_Height, 'vertical');
-  //   let [DoseY_RGB, DoseY_RG] = this.DataForFittingY(dataY, calibration);
-  //   let PlotDataRGB = this.PrepareDataForPlot(dataX, DoseY_RGB);
-  //   let PlotDataRG = this.PrepareDataForPlot(dataX, DoseY_RG);
-  //   return [PlotDataRGB, PlotDataRG]
-  // }
-
-  // HorizontalBeamWidht(imgData, calibration: Calibration, points: number[][], Square_Width, Square_Height) {
-
-  //   let dataX = this.DataForFittingX([ points[0][0], points[0][1] + Math.trunc(Square_Height/2) ], [ points[1][0], points[0][1] + Math.trunc(Square_Height/2)  ], Square_Width);
-  //   let dataY = this.rgbavaluesService.circlePixelsNearby(imgData, points[0][1], points[0][0], Square_Height, Square_Width,'horizontal');
-  //   let [DoseY_RGB, DoseY_RG] = this.DataForFittingY(dataY, calibration);
-  //   let PlotDataRGB = this.PrepareDataForPlot(dataX, DoseY_RGB);
-  //   let PlotDataRG = this.PrepareDataForPlot(dataX, DoseY_RG);
-  //   return [PlotDataRGB, PlotDataRG]
-  // }
-
-  
 
   DataForFittingX(data1: [number,number], data2: [number,number], distanceInPixels) {
 
@@ -388,38 +370,55 @@ export class BeamDistributionPage implements OnInit {
     let dataY_B: number[][] = dataY[2];
     let DoseY_RGB: number[] = [];
     let DoseY_RG: number[] = [];
+    let error_DoseY_RGB: number[] = [];
     let circleDoseRGB: number[][] = [];
     let circleDoseRG: number[][] = [];
+    let error_circleDoseRGB: number[][] = [];
 
     for (let i=0; i < dataY_R.length; i++) {
       circleDoseRGB[i] = [];
       circleDoseRG[i] = [];
+      error_circleDoseRGB[i] = [];
     }
     console.log('dataforfittingY');
     for (let line = 0; line < dataY_R.length; line++) {
       for (let pixel = 0; pixel < dataY_R[line].length; pixel++) {
 
         let RGB_MeanDose: number;
+        let error_RGB_MeanDose: number;
         let RG_MeanDose: number;
         let PixelDoseChannel: number[] = [];
         let rgb: number[] = [dataY_R[line][pixel], dataY_G[line][pixel], dataY_B[line][pixel]];
-        [PixelDoseChannel, [RGB_MeanDose, RG_MeanDose] ] = this.dosimetryService.CalculateDose(this.ExistsZero, rgb, calibration, this.zero);
+        [PixelDoseChannel, [RGB_MeanDose, RG_MeanDose, error_RGB_MeanDose] ] = this.dosimetryService.CalculateDose(this.ExistsZero, rgb, calibration, this.zero);
         
         circleDoseRGB[line].push(RGB_MeanDose);
         circleDoseRG[line].push(RG_MeanDose);
+        error_circleDoseRGB[line].push(error_RGB_MeanDose);
       }
+      //////////////////////
+      console.log('dataY_R[line]:', dataY_R[line]);
+      DoseY_RGB.push( this.dosimetryService.ArrayMean(circleDoseRGB[line]) );
+      DoseY_RG.push( this.dosimetryService.ArrayMean(circleDoseRG[line]) );
+      let n = error_circleDoseRGB[line].length;
+      let error_y: number = Math.sqrt(this.beamDistributionService.sum( this.beamDistributionService.PowElementsArray(error_circleDoseRGB[line], 2 ) )/(n**2));
+      error_DoseY_RGB.push( error_y );
+      //////////////////////
 
-      // console.log('dataY_R[line]:', dataY_R[line]);
-      // DoseY_RGB.push( this.dosimetryService.ArrayMean(circleDoseRGB[line]) );
-      // DoseY_RG.push( this.dosimetryService.ArrayMean(circleDoseRG[line]) );
-      DoseY_RGB.push( Math.max(...circleDoseRGB[line]) );
-      DoseY_RG.push( Math.max(...circleDoseRG[line]) );
-      
+      // let max_y: number = Math.max(...circleDoseRGB[line]);
+      // let index_maxy: number = circleDoseRGB[line].indexOf(max_y);
+      // DoseY_RGB.push( max_y );
+      // DoseY_RG.push( Math.max(...circleDoseRG[line]) );
+      // error_DoseY_RGB.push( error_circleDoseRGB[line][index_maxy] );
     }
+    //////////////////////
+    DoseY_RGB = this.beamDistributionService.SubsElementArray(Math.min(...DoseY_RGB) , DoseY_RGB);
+    //////////////////////
+
     DoseY_RGB = this.beamDistributionService.RoundArray(DoseY_RGB, 3);
     DoseY_RG = this.beamDistributionService.RoundArray(DoseY_RG, 3);
+    error_DoseY_RGB = this.beamDistributionService.RoundArray(error_DoseY_RGB, 3);
     console.log('END DataForFittingY');
-    return [DoseY_RGB, DoseY_RG]
+    return [DoseY_RGB, DoseY_RG, error_DoseY_RGB]
   }
 
   // DataFittingY(dataY, calibration: Calibration) {

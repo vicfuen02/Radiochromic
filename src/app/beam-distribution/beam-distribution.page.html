@@ -88,7 +88,7 @@
         </ion-col>
       </ion-row>
 
-      <!-- <ion-row>
+      <ion-row>
         <ion-col>
           <ion-button expand="full" size="small" (click)="SetDatacoord()">
             <ion-icon slot="start" name="info"></ion-icon>
@@ -102,7 +102,7 @@
             Clear Point
           </ion-button>
         </ion-col>
-      </ion-row> -->
+      </ion-row>
 
       <ion-row>
         <ion-col>
@@ -122,18 +122,19 @@
         </ion-col>
       </ion-row>
 
-      <!-- <ion-row>
+      <ion-row>
         <ion-col>
-          <ion-button expand="full" size="small" (click)="DistanceCalculus()">
+          <ion-button expand="full" size="small" (click)="DistanceCalculusPrueba()">
             <ion-icon slot="start" name="info"></ion-icon>
             Calculate
           </ion-button>
 
           <div>
-            <strong>Distance: </strong> {{distance}}
+            <strong>Distance (mm): </strong> {{distance}}  &#177; {{error_distance}}
+            <!-- <strong>Error_Distance: </strong> {{error_distance}} -->
           </div>
         </ion-col>
-      </ion-row> -->
+      </ion-row>
       
     </ion-grid>
   </ion-card>
@@ -145,7 +146,7 @@
 
   <!--------------------- CROP IMAGE ---------------------->
   <div *ngIf="CropImage">
-    <ion-card>
+    <!-- <ion-card> -->
       <!-- <ion-button expand="full" (click)="captureImage()">
         Capture Image
       </ion-button> -->
@@ -158,7 +159,7 @@
       (imageCropped)="imageCropped($event)">
       </image-cropper>
   
-    </ion-card>
+    <!-- </ion-card> -->
   
     <ion-button (click)=Distribution()>
       Calculate Distribution
@@ -185,7 +186,7 @@
   </ion-card> -->
   
   <br>
-  <span *ngIf="ExistsChart" style="padding-left:20px"><strong>Y Width. RGB Mean Dose.</strong></span>
+  <span *ngIf="ExistsChart" style="padding-left:20px"><strong>Y Width. Mean Dose.</strong></span>
   <div class="chart-container">
     <canvas id="chart_1"></canvas>
   </div>
@@ -193,12 +194,13 @@
   <ion-card>
     <div *ngIf="ExistsChart"> 
       &nbsp;<strong>
-        FWHM<sub>Y</sub>: {{this.FWHM_Y}} &nbsp;
-        &sigma;<sub>Y</sub>: {{this.sigma_Y}} &nbsp;
-        &mu;<sub>Y</sub>: {{this.mu_Y}} &nbsp;
-        y<sub>C</sub><sub>Y</sub>: {{this.yc_Y}} &nbsp; <br>
-        &nbsp;&nbsp;A<sub>Y</sub>: {{this.A_Y}} &nbsp;
-        y<sub>0</sub><sub>Y</sub>: {{this.y0_Y}} &nbsp; 
+        FWHM<sub>Y</sub>: {{this.FWHM_Y}} &#177; {{this.error_Gaussiana_Y.FWHM}}
+        &sigma;<sub>Y</sub>: {{this.sigma_Y}} &#177; {{this.error_Gaussiana_Y.sigma}}
+        &mu;<sub>Y</sub>: {{this.mu_Y}} &#177; {{this.error_Gaussiana_Y.mu}}
+        &nbsp;&nbsp;y<sub>C</sub><sub>Y</sub>: {{this.yc_Y}} &#177; {{this.error_Gaussiana_Y.yc}}
+        A<sub>Y</sub>: {{this.A_Y}} &#177; {{this.error_Gaussiana_Y.A}}
+        y<sub>0</sub><sub>Y</sub>: {{this.y0_Y}} <br>
+        &nbsp;&nbsp;R<sup>2</sup><sub>Y</sub>: {{this.R2_Y}}
       </strong>
     </div>
   </ion-card>
@@ -212,19 +214,20 @@
     </div>
   </ion-card> -->
   <br>
-  <span *ngIf="ExistsChart" style="padding-left:20px"><strong>X Width. RGB Mean Dose.</strong></span>
+  <span *ngIf="ExistsChart" style="padding-left:20px"><strong>X Width. Mean Dose.</strong></span>
   <div class="chart-container">
     <canvas id="chart_2"></canvas>
   </div>
   <ion-card *ngIf="ExistsChart">
     <div>
       &nbsp;<strong>
-        FWHM<sub>X</sub>: {{this.FWHM_Y}} &nbsp;
-        &sigma;<sub>X</sub>: {{this.sigma_X}} &nbsp;
-        &mu;<sub>X</sub>: {{this.mu_X}} &nbsp;
-        y<sub>C</sub><sub>X</sub>: {{this.yc_X}} &nbsp; <br>
-        &nbsp;&nbsp;A<sub>X</sub>: {{this.A_X}} &nbsp;
-        y<sub>0</sub><sub>X</sub>: {{this.y0_X}} &nbsp; 
+        FWHM<sub>X</sub>: {{this.FWHM_X}} &#177; {{this.error_Gaussiana_X.FWHM}}
+        &sigma;<sub>X</sub>: {{this.sigma_X}} &#177; {{this.error_Gaussiana_X.sigma}}
+        &mu;<sub>X</sub>: {{this.mu_X}} &#177; {{this.error_Gaussiana_X.mu}}
+        &nbsp;&nbsp;y<sub>C</sub><sub>X</sub>: {{this.yc_X}} &#177; {{this.error_Gaussiana_X.yc}}
+        &nbsp;&nbsp;A<sub>X</sub>: {{this.A_X}} &#177; {{this.error_Gaussiana_X.A}}
+        y<sub>0</sub><sub>X</sub>: {{this.y0_X}} <br>
+        &nbsp;&nbsp;R<sup>2</sup><sub>X</sub>: {{this.R2_X}}
       </strong>
     </div>
   </ion-card>

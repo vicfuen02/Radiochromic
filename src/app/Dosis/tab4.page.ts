@@ -37,7 +37,7 @@ export class Tab4Page implements OnInit {
   PixelDoseChannel: number[];
   RGB_MeanDose: number;
   RG_MeanDose: number;
-
+  err_RGB_MeanDose: number;
 
   constructor(private dosimetryService: DosimetryService, 
               private photoSvc: PhotoService) {          
@@ -99,7 +99,7 @@ export class Tab4Page implements OnInit {
   CalculateDosis() {
 
     this.RGBPoint = this.dosimetryService.saveRGB;
-    [this.PixelDoseChannel, [this.RGB_MeanDose, this.RG_MeanDose] ] = this.dosimetryService.CalculateDose(this.ExistsZero, this.RGBPoint, this.SelectedCalibration, this.zero)
+    [this.PixelDoseChannel, [this.RGB_MeanDose, this.RG_MeanDose, this.err_RGB_MeanDose] ] = this.dosimetryService.CalculateDose(this.ExistsZero, this.RGBPoint, this.SelectedCalibration, this.zero)
   }
 
   // CalculateDosis() {

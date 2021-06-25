@@ -29,3 +29,12 @@ export interface Calibration{
    
 }
 
+export interface Gaussian{
+    A: number;
+    sigma: number;
+    mu: number;
+    FWHM: number;
+    yc: number;
+    y0?: number;
+}
+

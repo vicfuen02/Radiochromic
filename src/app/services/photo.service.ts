@@ -20,14 +20,24 @@ export class PhotoService {
     this.platform = platform;
   }
 
+  public async TakePhotoFromCamera() {
+    await this.addNewToGallery(CameraSource.Camera).then(()=> {},
+        err => {console.log('se cerro la camara')});
+  }
+
+  public async TakePhotoFromGallery() {
+    await this.addNewToGallery(CameraSource.Photos).then(() => {},
+        err => {console.log('se cerro la galeria')});
+  }
+
   public async addNewToGallery(source: CameraSource){
-    
+    // Take a photo
     const capturedPhoto = await Camera.getPhoto({
       resultType: CameraResultType.Uri,
       source,
       quality: 100
     });
-
+    // Save the picture and add it to photo collection
     const saveImageFile = await this.savePicture(capturedPhoto);
     this.photos.unshift(saveImageFile);
 
@@ -39,16 +49,6 @@ export class PhotoService {
         return photoCopy;
       }))
     });
-  }
-
-  public async TakePhotoFromCamera() {
-    await this.addNewToGallery(CameraSource.Camera).then(()=> {},
-        err => {console.log('se cerro la camara')});
-  }
-
-  public async TakePhotoFromGallery() {
-    await this.addNewToGallery(CameraSource.Photos).then(() => {},
-        err => {console.log('se cerro la galeria')});
   }
 
 
